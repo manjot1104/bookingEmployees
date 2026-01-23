@@ -101,10 +101,14 @@ function Home({ user, onLogout }) {
               onChange={(e) => handleFilterChange('center', e.target.value)}
             >
               <option value="">Select Centre</option>
-              <option value="Mumbai">Mumbai</option>
-              <option value="Delhi">Delhi</option>
-              <option value="Bangalore">Bangalore</option>
-              <option value="Chandigarh">Chandigarh</option>
+              <option value="Faridkot">Faridkot</option>
+              <option value="Ludhiana">Ludhiana</option>
+              <option value="Malerkotla">Malerkotla</option>
+              <option value="Moga">Moga</option>
+              <option value="Bathinda">Bathinda</option>
+              <option value="Amritsar">Amritsar</option>
+              <option value="Jalandhar">Jalandhar</option>
+              <option value="Malout">Malout</option>
             </select>
 
             <select 
