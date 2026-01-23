@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { createBooking } from '../services/api';
 import './BookingModal.css';
 
@@ -11,11 +11,7 @@ function BookingModal({ employee, onClose, onBookingSuccess }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  useEffect(() => {
-    loadAvailableSlots();
-  }, [employee, bookingType]);
-
-  const loadAvailableSlots = () => {
+  const loadAvailableSlots = useCallback(() => {
     const slots = employee.availableSlots?.filter(
       slot => slot.type === bookingType && !slot.isBooked
     ) || [];
@@ -30,7 +26,11 @@ function BookingModal({ employee, onClose, onBookingSuccess }) {
     });
 
     setAvailableSlots(futureSlots);
-  };
+  }, [employee, bookingType]);
+
+  useEffect(() => {
+    loadAvailableSlots();
+  }, [loadAvailableSlots]);
 
   const getAvailableDates = () => {
     const dates = [...new Set(availableSlots.map(slot => {

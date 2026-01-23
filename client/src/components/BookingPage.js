@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useLocation, useNavigate } from 'react-router-dom';
 import { createBooking, getEmployee, createRazorpayOrder, verifyRazorpayPayment } from '../services/api';
 import './BookingPage.css';
@@ -23,15 +23,24 @@ function BookingPage({ user }) {
   const location = useLocation();
   const navigate = useNavigate();
   const [employee, setEmployee] = useState(location.state?.employee || null);
-  const [sessionType, setSessionType] = useState(location.state?.sessionType || 'Video');
-  const [duration, setDuration] = useState(location.state?.duration || 50);
-  const [selectedDate, setSelectedDate] = useState(location.state?.selectedDate || '');
-  const [selectedTime, setSelectedTime] = useState(location.state?.selectedTime || '');
+  const [sessionType] = useState(location.state?.sessionType || 'Video');
+  const [duration] = useState(location.state?.duration || 50);
+  const [selectedDate] = useState(location.state?.selectedDate || '');
+  const [selectedTime] = useState(location.state?.selectedTime || '');
   const [loading, setLoading] = useState(false);
   const [timeLeft, setTimeLeft] = useState(600); // 10 minutes in seconds
   const [bookingId, setBookingId] = useState(location.state?.existingBookingId || null);
   const [isExistingBooking, setIsExistingBooking] = useState(location.state?.isExistingBooking || false);
   const [razorpayLoaded, setRazorpayLoaded] = useState(false);
+
+  const loadEmployee = useCallback(async () => {
+    try {
+      const data = await getEmployee(id);
+      setEmployee(data);
+    } catch (error) {
+      console.error('Error loading employee:', error);
+    }
+  }, [id]);
 
   useEffect(() => {
     // If employee data is passed from state, use it; otherwise load from API
@@ -48,6 +57,7 @@ function BookingPage({ user }) {
       setBookingId(location.state.existingBookingId);
       setIsExistingBooking(true);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id, location.state]);
 
   useEffect(() => {
@@ -64,14 +74,6 @@ function BookingPage({ user }) {
     return () => clearInterval(timer);
   }, []);
 
-  const loadEmployee = async () => {
-    try {
-      const data = await getEmployee(id);
-      setEmployee(data);
-    } catch (error) {
-      console.error('Error loading employee:', error);
-    }
-  };
 
   const formatTime = (seconds) => {
     const mins = Math.floor(seconds / 60);

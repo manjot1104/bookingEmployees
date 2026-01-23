@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getEmployee } from '../services/api';
 import './EmployeeProfile.css';
@@ -14,17 +14,7 @@ function EmployeeProfile({ user }) {
   const [selectedTime, setSelectedTime] = useState('');
   const [showFullBio, setShowFullBio] = useState(false);
 
-  useEffect(() => {
-    loadEmployee();
-  }, [id]);
-
-  useEffect(() => {
-    // Reset selection when session type changes
-    setSelectedDate(null);
-    setSelectedTime('');
-  }, [sessionType]);
-
-  const loadEmployee = async () => {
+  const loadEmployee = useCallback(async () => {
     try {
       const data = await getEmployee(id);
       console.log('Employee data loaded:', data);
@@ -35,7 +25,17 @@ function EmployeeProfile({ user }) {
       console.error('Error loading employee:', error);
       setLoading(false);
     }
-  };
+  }, [id]);
+
+  useEffect(() => {
+    loadEmployee();
+  }, [loadEmployee]);
+
+  useEffect(() => {
+    // Reset selection when session type changes
+    setSelectedDate(null);
+    setSelectedTime('');
+  }, [sessionType]);
 
   const getAvailableDates = () => {
     if (!employee?.availableSlots || employee.availableSlots.length === 0) {

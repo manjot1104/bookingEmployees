@@ -5,7 +5,6 @@ import './EmployeeCard.css';
 function EmployeeCard({ employee, onBookClick }) {
   const navigate = useNavigate();
   const [bookingType, setBookingType] = useState('Online');
-  const [selectedSlot, setSelectedSlot] = useState(null);
 
   const availableSlots = employee.availableSlots?.filter(
     slot => slot.type === bookingType && !slot.isBooked

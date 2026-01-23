@@ -1,12 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import '../App.css';
 import EmployeeList from './EmployeeList';
-import EmployeeCard from './EmployeeCard';
 import BookingModal from './BookingModal';
-import { getEmployees, getAuthToken } from '../services/api';
+import { getEmployees } from '../services/api';
 
 function Home({ user, onLogout }) {
-  const [employees, setEmployees] = useState([]);
   const [filteredEmployees, setFilteredEmployees] = useState([]);
   const [selectedEmployee, setSelectedEmployee] = useState(null);
   const [showBookingModal, setShowBookingModal] = useState(false);
@@ -19,11 +17,7 @@ function Home({ user, onLogout }) {
   });
   const [expertType, setExpertType] = useState('Psychiatrist');
 
-  useEffect(() => {
-    loadEmployees();
-  }, [filters]);
-
-  const loadEmployees = async () => {
+  const loadEmployees = useCallback(async () => {
     try {
       const queryParams = new URLSearchParams();
       Object.keys(filters).forEach(key => {
@@ -33,12 +27,15 @@ function Home({ user, onLogout }) {
       });
 
       const data = await getEmployees(queryParams.toString());
-      setEmployees(data);
       setFilteredEmployees(data);
     } catch (error) {
       console.error('Error loading employees:', error);
     }
-  };
+  }, [filters]);
+
+  useEffect(() => {
+    loadEmployees();
+  }, [loadEmployees]);
 
   const handleBookClick = (employee) => {
     setSelectedEmployee(employee);
