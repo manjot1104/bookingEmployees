@@ -1,0 +1,36 @@
+{
+  "name": "booking-employees",
+  "version": "1.0.0",
+  "description": "Employee booking platform for WordPress integration",
+  "main": "server/index.js",
+  "scripts": {
+    "dev": "concurrently \"npm run server\" \"npm run client\"",
+    "server": "nodemon server/index.js",
+    "client": "cd client && npm start",
+    "build": "cd client && npm run build",
+    "install-all": "npm install && cd client && npm install",
+    "reset-db": "node server/utils/resetDatabase.js",
+    "reseed": "node -e \"require('dotenv').config(); const mongoose = require('mongoose'); const Employee = require('./server/models/Employee'); const seedData = require('./server/utils/seedData'); mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/bookingEmployees', {useNewUrlParser: true, useUnifiedTopology: true}).then(() => {console.log('Connected'); return Employee.deleteMany({});}).then(() => seedData()).then(() => {mongoose.connection.close(); process.exit(0);}).catch(err => {console.error(err); process.exit(1);});\""
+  },
+  "keywords": [
+    "booking",
+    "employees",
+    "wordpress"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "express-validator": "^7.0.1",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^7.5.0",
+    "razorpay": "^2.9.6"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.1",
+    "nodemon": "^3.0.1"
+  }
+}
