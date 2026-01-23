@@ -12,6 +12,7 @@ const app = express();
 const allowedOrigins = [
   process.env.FRONTEND_URL,
   process.env.VERCEL_URL,
+  'https://booking-employees.vercel.app', // Your Vercel frontend URL
   'http://localhost:3000'
 ].filter(Boolean);
 
@@ -20,18 +21,26 @@ const corsOptions = {
     // Allow requests with no origin (like mobile apps or curl requests)
     if (!origin) return callback(null, true);
     
-    if (allowedOrigins.length === 0 || allowedOrigins.includes(origin)) {
-      callback(null, true);
+    // In production, check against allowed origins
+    if (process.env.NODE_ENV === 'production') {
+      if (allowedOrigins.length === 0 || allowedOrigins.some(allowed => origin.includes(allowed.replace('https://', '').replace('http://', '')))) {
+        callback(null, true);
+      } else {
+        console.log('CORS blocked origin:', origin);
+        console.log('Allowed origins:', allowedOrigins);
+        callback(new Error('Not allowed by CORS'));
+      }
     } else {
-      callback(new Error('Not allowed by CORS'));
+      // In development, allow all
+      callback(null, true);
     }
   },
   credentials: true,
   optionsSuccessStatus: 200
 };
 
-// In production, use CORS with options; in development, allow all
-app.use(process.env.NODE_ENV === 'production' ? cors(corsOptions) : cors());
+// Use CORS with options
+app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
