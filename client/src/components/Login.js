@@ -40,7 +40,34 @@ function Login({ onLogin }) {
         onLogin(response.user, response.token);
       }
     } catch (err) {
-      setError(err.response?.data?.message || 'An error occurred. Please try again.');
+      console.error('Login/Register Error:', {
+        message: err.message,
+        response: err.response,
+        status: err.response?.status,
+        data: err.response?.data,
+        config: err.config
+      });
+      
+      // More specific error messages
+      if (err.response) {
+        // Server responded with error
+        if (err.response.status === 404) {
+          setError('API endpoint not found. Please check backend configuration.');
+        } else if (err.response.status === 500) {
+          setError('Server error. Please try again later.');
+        } else if (err.response.status === 401) {
+          setError('Invalid email or password.');
+        } else {
+          setError(err.response?.data?.message || `Error: ${err.response.status} - ${err.response.statusText}`);
+        }
+      } else if (err.request) {
+        // Request made but no response
+        console.error('No response from server. Check if backend is running.');
+        setError('Cannot connect to server. Please check if backend is running and API URL is configured correctly.');
+      } else {
+        // Something else happened
+        setError(err.message || 'An error occurred. Please try again.');
+      }
     } finally {
       setLoading(false);
     }

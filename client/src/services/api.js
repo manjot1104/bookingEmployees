@@ -3,9 +3,15 @@ import axios from 'axios';
 // Get API URL from environment variable
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
 
-// Log API URL in development to help debug
-if (process.env.NODE_ENV === 'development') {
-  console.log('🔗 API Base URL:', API_BASE_URL);
+// Always log API URL to help debug (even in production)
+console.log('🔗 API Base URL:', API_BASE_URL);
+console.log('🔗 Environment:', process.env.NODE_ENV);
+console.log('🔗 REACT_APP_API_URL:', process.env.REACT_APP_API_URL || 'NOT SET - Using default localhost');
+
+// Warn if using localhost in production
+if (!process.env.REACT_APP_API_URL && window.location.hostname !== 'localhost') {
+  console.error('⚠️ WARNING: REACT_APP_API_URL is not set in Vercel!');
+  console.error('⚠️ Please set REACT_APP_API_URL = https://bookingemployees.onrender.com/api in Vercel environment variables');
 }
 
 const api = axios.create({
