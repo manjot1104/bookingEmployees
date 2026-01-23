@@ -210,6 +210,8 @@
   cursor: pointer;
   transition: all 0.3s;
   font-weight: 600;
+  min-width: 140px;
+  text-align: center;
 }
 
 .cancel-btn {
