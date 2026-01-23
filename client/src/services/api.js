@@ -1,13 +1,47 @@
 import axios from 'axios';
 
+// Get API URL from environment variable
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+
+// Log API URL in development to help debug
+if (process.env.NODE_ENV === 'development') {
+  console.log('🔗 API Base URL:', API_BASE_URL);
+}
 
 const api = axios.create({
   baseURL: API_BASE_URL,
   headers: {
     'Content-Type': 'application/json'
-  }
+  },
+  timeout: 30000 // 30 seconds timeout
 });
+
+// Add response interceptor for better error handling
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    // Log full error details in development
+    if (process.env.NODE_ENV === 'development') {
+      console.error('❌ API Error:', {
+        url: error.config?.url,
+        baseURL: error.config?.baseURL,
+        fullURL: error.config?.baseURL + error.config?.url,
+        status: error.response?.status,
+        message: error.message,
+        response: error.response?.data
+      });
+    }
+    
+    // If 404, provide more helpful error message
+    if (error.response?.status === 404) {
+      console.error('❌ 404 Error - API endpoint not found');
+      console.error('Full URL:', error.config?.baseURL + error.config?.url);
+      console.error('Check if REACT_APP_API_URL is set correctly in Vercel');
+    }
+    
+    return Promise.reject(error);
+  }
+);
 
 // Add token to requests
 api.interceptors.request.use((config) => {
@@ -15,8 +49,49 @@ api.interceptors.request.use((config) => {
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
+  
+  // Log request in development
+  if (process.env.NODE_ENV === 'development') {
+    console.log('📤 API Request:', {
+      method: config.method?.toUpperCase(),
+      url: config.url,
+      baseURL: config.baseURL,
+      fullURL: config.baseURL + config.url
+    });
+  }
+  
   return config;
 });
+
+// Add response interceptor for better error handling
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    // Log full error details
+    console.error('❌ API Error:', {
+      url: error.config?.url,
+      baseURL: error.config?.baseURL,
+      fullURL: error.config?.baseURL + error.config?.url,
+      status: error.response?.status,
+      message: error.message,
+      response: error.response?.data
+    });
+    
+    // If 404, provide more helpful error message
+    if (error.response?.status === 404) {
+      console.error('❌ 404 Error - API endpoint not found');
+      console.error('Full URL:', error.config?.baseURL + error.config?.url);
+      console.error('Current API Base URL:', API_BASE_URL);
+      if (API_BASE_URL.includes('localhost')) {
+        console.error('⚠️ WARNING: Using localhost URL!');
+        console.error('⚠️ Please set REACT_APP_API_URL in Vercel environment variables');
+        console.error('⚠️ Should be: https://bookingemployees.onrender.com/api');
+      }
+    }
+    
+    return Promise.reject(error);
+  }
+);
 
 // Auth functions
 export const login = async (email, password) => {
