@@ -177,4 +177,35 @@ export const removeAuthToken = () => {
   localStorage.removeItem('authToken');
 };
 
+// Admin functions
+export const getAdminBookings = async () => {
+  const response = await api.get('/admin/bookings');
+  return response.data;
+};
+
+export const getAdminEmployees = async () => {
+  const response = await api.get('/admin/employees');
+  return response.data;
+};
+
+export const getAdminUsers = async () => {
+  const response = await api.get('/admin/users');
+  return response.data;
+};
+
+export const getAdminDashboard = async () => {
+  const response = await api.get('/admin/dashboard');
+  return response.data;
+};
+
+export const getEmployeeBookings = async (employeeId) => {
+  const response = await api.get(`/admin/employees/${employeeId}/bookings`);
+  return response.data;
+};
+
+export const updateSlotStatus = async (employeeId, slotIndex, isBooked) => {
+  const response = await api.patch(`/admin/employees/${employeeId}/slots/${slotIndex}`, { isBooked });
+  return response.data;
+};
+
 export default api;

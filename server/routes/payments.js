@@ -3,7 +3,9 @@ const Razorpay = require('razorpay');
 const crypto = require('crypto');
 const Booking = require('../models/Booking');
 const Employee = require('../models/Employee');
+const User = require('../models/User');
 const auth = require('../middleware/auth');
+const { sendBookingConfirmation, sendAdminNotification } = require('../utils/emailService');
 const router = express.Router();
 
 // Initialize Razorpay
@@ -51,14 +53,19 @@ router.post('/create-order', auth, async (req, res) => {
       notes: {
         bookingId: bookingId.toString(),
         userId: req.user._id.toString(),
-        employeeId: booking.employee._id.toString()
+        employeeId: (booking.employee?._id || booking.employee || '').toString()
       }
     };
 
     const order = await razorpay.orders.create(options);
 
-    // Update booking with order ID
+    // Update booking with order ID and ensure employee data is stored
     booking.paymentOrderId = order.id;
+    // Ensure denormalized employee data is stored
+    if (booking.employee && !booking.employeeName) {
+      booking.employeeName = booking.employee.name;
+      booking.employeeTitle = booking.employee.title;
+    }
     await booking.save();
 
     res.json({
@@ -83,7 +90,8 @@ router.post('/verify-payment', auth, async (req, res) => {
     }
 
     // Verify booking
-    const booking = await Booking.findById(bookingId);
+    const booking = await Booking.findById(bookingId)
+      .populate('employee', 'name title');
 
     if (!booking) {
       return res.status(404).json({ message: 'Booking not found' });
@@ -111,12 +119,34 @@ router.post('/verify-payment', auth, async (req, res) => {
     booking.status = 'Confirmed';
     booking.paymentStatus = 'Paid';
     booking.paidAt = new Date();
+    
+    // Ensure denormalized employee data is stored (for performance and reliability)
+    if (booking.employee && !booking.employeeName) {
+      booking.employeeName = booking.employee.name;
+      booking.employeeTitle = booking.employee.title;
+    }
+    
     await booking.save();
 
-    // Populate employee before sending response
+    // Populate employee and user before sending response
     await booking.populate('employee', 'name title experience price expertise languages image bio qualifications email');
+    await booking.populate('user', 'name email phone');
 
     console.log('✅ Payment verified. Booking confirmed for employee:', booking.employee?.name || 'Unknown');
+
+    // Send confirmation emails (non-blocking)
+    try {
+      if (booking.user && booking.employee) {
+        // Send payment confirmation to user
+        await sendBookingConfirmation(booking, booking.user, booking.employee);
+        
+        // Send notification to admin
+        await sendAdminNotification(booking, booking.user, booking.employee);
+      }
+    } catch (emailError) {
+      // Log error but don't fail the payment verification
+      console.error('Error sending payment confirmation emails:', emailError);
+    }
 
     res.json({
       success: true,

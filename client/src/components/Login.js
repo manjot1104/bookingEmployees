@@ -1,8 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { login, register } from '../services/api';
 import './Login.css';
 
 function Login({ onLogin }) {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const redirectPath = new URLSearchParams(location.search).get('redirect') || location.state?.from || '/';
   const [isLogin, setIsLogin] = useState(true);
   const [formData, setFormData] = useState({
     name: '',
@@ -37,7 +41,7 @@ function Login({ onLogin }) {
       }
 
       if (response.token && response.user) {
-        onLogin(response.user, response.token);
+        onLogin(response.user, response.token, redirectPath);
       }
     } catch (err) {
       console.error('Login/Register Error:', {
@@ -79,6 +83,11 @@ function Login({ onLogin }) {
         <div className="login-header">
           <h1>Booking Platform</h1>
           <p>Employee Booking System</p>
+          {location.state?.message && (
+            <p style={{ color: '#ff6b35', marginTop: '0.5rem', fontSize: '0.9rem', fontWeight: '500' }}>
+              {location.state.message}
+            </p>
+          )}
         </div>
 
         <div className="login-tabs">

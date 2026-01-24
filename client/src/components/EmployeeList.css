@@ -5,6 +5,13 @@
   margin-top: 2rem;
 }
 
+@media (max-width: 1024px) {
+  .employee-list {
+    grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+    gap: 1.5rem;
+  }
+}
+
 .no-employees {
   text-align: center;
   padding: 3rem;
@@ -15,5 +22,24 @@
 @media (max-width: 768px) {
   .employee-list {
     grid-template-columns: 1fr;
+    gap: 1.5rem;
+    margin-top: 1.5rem;
+  }
+
+  .no-employees {
+    padding: 2rem 1rem;
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .employee-list {
+    gap: 1rem;
+    margin-top: 1rem;
+  }
+
+  .no-employees {
+    padding: 1.5rem 0.75rem;
+    font-size: 0.95rem;
   }
 }

@@ -20,6 +20,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 2rem;
 }
 
 .logo h1 {
@@ -38,17 +39,41 @@
 .main-nav {
   display: flex;
   gap: 2rem;
+  justify-content: center;
+  flex: 1;
 }
 
 .main-nav a {
   color: #333;
   text-decoration: none;
   font-weight: 500;
-  transition: color 0.3s;
+  transition: all 0.3s;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  position: relative;
 }
 
 .main-nav a:hover {
   color: #ff6b35;
+  background-color: #fff5f2;
+}
+
+.main-nav a.active {
+  color: #ff6b35;
+  font-weight: 600;
+  background-color: #fff5f2;
+}
+
+.main-nav a.active::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80%;
+  height: 2px;
+  background-color: #ff6b35;
+  border-radius: 2px;
 }
 
 .header-actions {
@@ -62,7 +87,8 @@
   font-size: 0.9rem;
 }
 
-.logout-btn {
+.logout-btn,
+.login-btn-header {
   background-color: #ff6b35;
   color: white;
   border: none;
@@ -71,9 +97,12 @@
   cursor: pointer;
   font-weight: 500;
   transition: background-color 0.3s;
+  text-decoration: none;
+  display: inline-block;
 }
 
-.logout-btn:hover {
+.logout-btn:hover,
+.login-btn-header:hover {
   background-color: #e55a2b;
 }
 
@@ -161,26 +190,176 @@
   margin-top: 2rem;
 }
 
-@media (max-width: 768px) {
+/* Tablet Responsive Styles */
+@media (max-width: 1024px) {
   .header-content {
-    flex-direction: column;
-    gap: 1rem;
+    padding: 0 1.5rem;
   }
 
   .main-nav {
+    gap: 1.5rem;
+  }
+}
+
+/* Mobile Responsive Styles */
+@media (max-width: 768px) {
+  .app-header {
+    padding: 0.75rem 0;
+  }
+
+  .header-content {
+    flex-direction: row;
     flex-wrap: wrap;
+    gap: 0.75rem;
+    padding: 0 1rem;
+    align-items: center;
+  }
+
+  .logo {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .logo h1 {
+    font-size: 1.3rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .logo p {
+    font-size: 0.7rem;
+    display: none;
+  }
+
+  .main-nav {
+    order: 3;
+    width: 100%;
     justify-content: center;
+    gap: 0.75rem;
+    padding-top: 0.5rem;
+    border-top: 1px solid #e0e0e0;
+  }
+
+  .main-nav a {
+    font-size: 0.85rem;
+    padding: 0.5rem 0.75rem;
+  }
+
+  .main-nav a.active::after {
+    bottom: -0.5rem;
+  }
+
+  .header-actions {
+    gap: 0.5rem;
+    flex-shrink: 0;
+  }
+
+  .user-name {
+    font-size: 0.8rem;
+    display: none;
+  }
+
+  .logout-btn,
+  .login-btn-header {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.85rem;
+    white-space: nowrap;
+  }
+
+  .main-content {
+    padding: 1rem;
+  }
+
+  .breadcrumbs {
+    font-size: 0.8rem;
+    margin-bottom: 0.75rem;
   }
 
   .hero-title {
-    font-size: 1.8rem;
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .expert-type-selector {
+    gap: 0.5rem;
+  }
+
+  .expert-type-selector button {
+    padding: 0.6rem 1rem;
+    font-size: 0.85rem;
+    flex: 1;
+    min-width: calc(50% - 0.25rem);
+  }
+
+  .filters-section {
+    padding: 1rem;
+    margin-bottom: 1.5rem;
   }
 
   .filter-row {
     flex-direction: column;
+    gap: 0.75rem;
   }
 
   .filter-select {
     width: 100%;
+    min-width: unset;
+    padding: 0.65rem;
+    font-size: 0.9rem;
+  }
+
+  .employees-section {
+    margin-top: 1.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .app-header {
+    padding: 0.5rem 0;
+  }
+
+  .header-content {
+    padding: 0 0.75rem;
+    gap: 0.5rem;
+  }
+
+  .logo h1 {
+    font-size: 1.1rem;
+  }
+
+  .main-nav {
+    gap: 0.5rem;
+    padding-top: 0.5rem;
+  }
+
+  .main-nav a {
+    font-size: 0.8rem;
+  }
+
+  .logout-btn,
+  .login-btn-header {
+    padding: 0.45rem 0.65rem;
+    font-size: 0.8rem;
+  }
+
+  .hero-title {
+    font-size: 1.3rem;
+    margin-bottom: 1rem;
+  }
+
+  .expert-type-selector {
+    gap: 0.4rem;
+  }
+
+  .expert-type-selector button {
+    font-size: 0.75rem;
+    padding: 0.5rem 0.65rem;
+    flex: 1;
+    min-width: calc(50% - 0.2rem);
+  }
+
+  .main-content {
+    padding: 0.75rem;
   }
 }

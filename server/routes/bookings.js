@@ -4,6 +4,7 @@ const Booking = require('../models/Booking');
 const Employee = require('../models/Employee');
 const User = require('../models/User');
 const auth = require('../middleware/auth');
+const { sendBookingConfirmation, sendAdminNotification } = require('../utils/emailService');
 const router = express.Router();
 
 // Create booking (requires authentication)
@@ -39,10 +40,12 @@ router.post('/', auth, [
       return res.status(400).json({ message: 'Selected slot is not available' });
     }
 
-    // Create booking
+    // Create booking with denormalized employee data
     const booking = new Booking({
       user: req.user._id,
       employee: employeeId,
+      employeeName: employee.name, // Store employee name directly
+      employeeTitle: employee.title, // Store employee title directly
       bookingDate: new Date(bookingDate),
       bookingTime,
       type,
@@ -67,6 +70,18 @@ router.post('/', auth, [
 
     // Populate employee details
     await booking.populate('employee', 'name title experience price expertise languages');
+
+    // Send email notifications (non-blocking)
+    try {
+      // Send confirmation email to user
+      await sendBookingConfirmation(booking, user, employee);
+      
+      // Send notification to admin
+      await sendAdminNotification(booking, user, employee);
+    } catch (emailError) {
+      // Log error but don't fail the booking creation
+      console.error('Error sending booking emails:', emailError);
+    }
 
     res.status(201).json({
       message: 'Booking created successfully',

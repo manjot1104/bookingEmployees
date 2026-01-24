@@ -1,43 +1,41 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import '../App.css';
 import EmployeeList from './EmployeeList';
 import BookingModal from './BookingModal';
 import { getEmployees } from '../services/api';
 
-function Home({ user, onLogout }) {
+function Home({ user, isAuthenticated, onLogout }) {
+  const navigate = useNavigate();
   const [filteredEmployees, setFilteredEmployees] = useState([]);
   const [selectedEmployee, setSelectedEmployee] = useState(null);
   const [showBookingModal, setShowBookingModal] = useState(false);
-  const [filters, setFilters] = useState({
-    center: '',
-    expertise: '',
-    languages: '',
-    price: '',
-    gender: ''
-  });
   const [expertType, setExpertType] = useState('Psychiatrist');
 
   const loadEmployees = useCallback(async () => {
     try {
-      const queryParams = new URLSearchParams();
-      Object.keys(filters).forEach(key => {
-        if (filters[key]) {
-          queryParams.append(key, filters[key]);
-        }
-      });
-
-      const data = await getEmployees(queryParams.toString());
+      const data = await getEmployees();
       setFilteredEmployees(data);
     } catch (error) {
       console.error('Error loading employees:', error);
     }
-  }, [filters]);
+  }, []);
 
   useEffect(() => {
     loadEmployees();
   }, [loadEmployees]);
 
   const handleBookClick = (employee) => {
+    if (!isAuthenticated) {
+      // Redirect to login with return path
+      navigate(`/login?redirect=/employee/${employee._id}`, {
+        state: {
+          from: `/employee/${employee._id}`,
+          message: 'Please login to book a session'
+        }
+      });
+      return;
+    }
     setSelectedEmployee(employee);
     setShowBookingModal(true);
   };
@@ -46,13 +44,6 @@ function Home({ user, onLogout }) {
     setShowBookingModal(false);
     setSelectedEmployee(null);
     loadEmployees();
-  };
-
-  const handleFilterChange = (filterName, value) => {
-    setFilters(prev => ({
-      ...prev,
-      [filterName]: value
-    }));
   };
 
   return (
@@ -93,76 +84,6 @@ function Home({ user, onLogout }) {
           </div>
         </div>
 
-        <div className="filters-section">
-          <div className="filter-row">
-            <select 
-              className="filter-select"
-              value={filters.center}
-              onChange={(e) => handleFilterChange('center', e.target.value)}
-            >
-              <option value="">Select Centre</option>
-              <option value="Faridkot">Faridkot</option>
-              <option value="Ludhiana">Ludhiana</option>
-              <option value="Malerkotla">Malerkotla</option>
-              <option value="Moga">Moga</option>
-              <option value="Bathinda">Bathinda</option>
-              <option value="Amritsar">Amritsar</option>
-              <option value="Jalandhar">Jalandhar</option>
-              <option value="Malout">Malout</option>
-            </select>
-
-            <select 
-              className="filter-select"
-              value={filters.expertise}
-              onChange={(e) => handleFilterChange('expertise', e.target.value)}
-            >
-              <option value="">Expertise</option>
-              <option value="Anxiety disorders">Anxiety disorders</option>
-              <option value="Depressive disorders">Depressive disorders</option>
-              <option value="Bipolar disorder">Bipolar disorder</option>
-              <option value="OCD">OCD</option>
-              <option value="Schizophrenia">Schizophrenia</option>
-              <option value="Sleep disorders">Sleep disorders</option>
-            </select>
-
-            <select 
-              className="filter-select"
-              value={filters.languages}
-              onChange={(e) => handleFilterChange('languages', e.target.value)}
-            >
-              <option value="">Languages</option>
-              <option value="English">English</option>
-              <option value="Hindi">Hindi</option>
-              <option value="Marathi">Marathi</option>
-              <option value="Kannada">Kannada</option>
-              <option value="Malayalam">Malayalam</option>
-            </select>
-
-            <select 
-              className="filter-select"
-              value={filters.price}
-              onChange={(e) => handleFilterChange('price', e.target.value)}
-            >
-              <option value="">Price</option>
-              <option value="0-1500">₹0 - ₹1500</option>
-              <option value="1500-2000">₹1500 - ₹2000</option>
-              <option value="2000-2500">₹2000 - ₹2500</option>
-              <option value="2500-3000">₹2500+</option>
-            </select>
-
-            <select 
-              className="filter-select"
-              value={filters.gender}
-              onChange={(e) => handleFilterChange('gender', e.target.value)}
-            >
-              <option value="">Gender</option>
-              <option value="Male">Male</option>
-              <option value="Female">Female</option>
-              <option value="Other">Other</option>
-            </select>
-          </div>
-        </div>
-
         <div className="employees-section">
           <EmployeeList 
             employees={filteredEmployees}
@@ -176,6 +97,7 @@ function Home({ user, onLogout }) {
           employee={selectedEmployee}
           onClose={() => setShowBookingModal(false)}
           onBookingSuccess={handleBookingSuccess}
+          isAuthenticated={isAuthenticated}
         />
       )}
     </div>

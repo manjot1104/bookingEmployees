@@ -2,6 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const dotenv = require('dotenv');
+const { createTransporter } = require('./utils/emailService');
 
 dotenv.config();
 
@@ -49,6 +50,7 @@ app.use('/api/auth', require('./routes/auth'));
 app.use('/api/employees', require('./routes/employees'));
 app.use('/api/bookings', require('./routes/bookings'));
 app.use('/api/payments', require('./routes/payments'));
+app.use('/api/admin', require('./routes/admin'));
 
 // Health check
 app.get('/api/health', (req, res) => {
@@ -103,4 +105,15 @@ const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
+  
+  // Initialize email service to verify connection
+  console.log('\n📧 Checking email service configuration...');
+  const emailTransporter = createTransporter();
+  if (emailTransporter) {
+    // Connection verification happens asynchronously in createTransporter
+    // The success/error message will appear shortly
+  } else {
+    console.warn('⚠️  Email service not configured. Emails will not be sent.');
+    console.warn('   Add SMTP settings to .env file to enable email notifications.');
+  }
 });

@@ -61,7 +61,8 @@ router.post('/register', [
         id: user._id,
         name: user.name,
         email: user.email,
-        phone: user.phone
+        phone: user.phone,
+        role: user.role || 'user'
       }
     });
   } catch (error) {
@@ -117,7 +118,8 @@ router.post('/login', [
         id: user._id,
         name: user.name,
         email: user.email,
-        phone: user.phone
+        phone: user.phone,
+        role: user.role || 'user'
       }
     });
   } catch (error) {
@@ -133,7 +135,12 @@ router.get('/me', require('../middleware/auth'), async (req, res) => {
       .select('-password')
       .populate('bookings');
     
-    res.json({ user });
+    res.json({ 
+      user: {
+        ...user.toObject(),
+        role: user.role || 'user'
+      }
+    });
   } catch (error) {
     console.error('Get user error:', error);
     res.status(500).json({ message: 'Server error' });

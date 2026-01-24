@@ -11,7 +11,13 @@
     "build": "cd client && npm run build",
     "install-all": "npm install && cd client && npm install",
     "reset-db": "node server/utils/resetDatabase.js",
-    "reseed": "node -e \"require('dotenv').config(); const mongoose = require('mongoose'); const Employee = require('./server/models/Employee'); const seedData = require('./server/utils/seedData'); mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/bookingEmployees', {useNewUrlParser: true, useUnifiedTopology: true}).then(() => {console.log('Connected'); return Employee.deleteMany({});}).then(() => seedData()).then(() => {mongoose.connection.close(); process.exit(0);}).catch(err => {console.error(err); process.exit(1);});\""
+    "reseed": "node -e \"require('dotenv').config(); const mongoose = require('mongoose'); const Employee = require('./server/models/Employee'); const seedData = require('./server/utils/seedData'); mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/bookingEmployees', {useNewUrlParser: true, useUnifiedTopology: true}).then(() => {console.log('Connected'); return Employee.deleteMany({});}).then(() => seedData()).then(() => {mongoose.connection.close(); process.exit(0);}).catch(err => {console.error(err); process.exit(1);});\"",
+    "set-admin": "node server/utils/setAdminUsers.js",
+    "verify-slots": "node server/utils/verifySlots.js",
+    "update-pricing": "node server/utils/updatePricing.js",
+    "update-duration": "node server/utils/updateDuration.js",
+    "update-images": "node server/utils/updateImagePaths.js",
+    "fix-booking-employees": "node server/utils/fixBookingEmployeeData.js"
   },
   "keywords": [
     "booking",
@@ -28,6 +34,7 @@
     "express-validator": "^7.0.1",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^7.5.0",
+    "nodemailer": "^7.0.12",
     "razorpay": "^2.9.6"
   },
   "devDependencies": {

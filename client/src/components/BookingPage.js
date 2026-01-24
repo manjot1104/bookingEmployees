@@ -177,9 +177,8 @@ function BookingPage({ user }) {
 
   const calculatePrice = () => {
     if (!employee) return 0;
-    const basePrice = employee.price.amount;
-    const durationMultiplier = duration === 50 ? (50 / employee.price.duration) : (30 / employee.price.duration);
-    return Math.round(basePrice * durationMultiplier);
+    // All sessions are 45 minutes, so price is the base price
+    return employee.price.amount;
   };
 
   if (!employee) {
@@ -239,7 +238,19 @@ function BookingPage({ user }) {
             <h2>Your Session Details:</h2>
             <div className="session-info">
               <div className="employee-image-small">
-                <div className="image-placeholder-small">
+                {employee.image ? (
+                  <img 
+                    src={employee.image} 
+                    alt={employee.name}
+                    className="employee-photo-small"
+                    onError={(e) => {
+                      e.target.style.display = 'none';
+                      const placeholder = e.target.parentElement.querySelector('.image-placeholder-small');
+                      if (placeholder) placeholder.style.display = 'flex';
+                    }}
+                  />
+                ) : null}
+                <div className="image-placeholder-small" style={{ display: employee.image ? 'none' : 'flex' }}>
                   {employee.name.charAt(0)}
                 </div>
               </div>

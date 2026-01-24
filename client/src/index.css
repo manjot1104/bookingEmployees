@@ -12,6 +12,44 @@ body {
   -moz-osx-font-smoothing: grayscale;
   background-color: #ffffff;
   color: #333;
+  overflow-x: hidden;
+}
+
+/* Improve touch targets on mobile */
+@media (max-width: 768px) {
+  button,
+  a,
+  input,
+  select,
+  textarea {
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0.1);
+  }
+
+  /* Ensure minimum touch target size */
+  button,
+  a {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  /* Prevent horizontal scroll */
+  body {
+    overflow-x: hidden;
+  }
+
+  /* Better image handling */
+  img {
+    max-width: 100%;
+    height: auto;
+  }
+}
+
+/* Extra small devices */
+@media (max-width: 480px) {
+  button,
+  a {
+    min-height: 40px;
+  }
 }
 
 code {

@@ -1,25 +1,55 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { getCurrentISTDate, isDatePast, isToday, isTimePassedToday } from '../utils/dateUtils';
 import './EmployeeCard.css';
 
 function EmployeeCard({ employee, onBookClick }) {
   const navigate = useNavigate();
   const [bookingType, setBookingType] = useState('Online');
 
+  // Working hours: 10:00 AM to 6:00 PM
+  const workingHours = ['10:00 AM', '11:00 AM', '12:00 PM', '01:00 PM', '02:00 PM', '03:00 PM', '04:00 PM', '05:00 PM'];
+  
   const availableSlots = employee.availableSlots?.filter(
-    slot => slot.type === bookingType && !slot.isBooked
+    slot => {
+      // Filter by booking type and not booked
+      if (slot.type !== bookingType || slot.isBooked) return false;
+      
+      // Filter by working hours
+      if (!workingHours.includes(slot.time)) return false;
+      
+      // Exclude Sundays
+      const slotDate = new Date(slot.date);
+      if (slotDate.getDay() === 0) return false;
+      
+      // Exclude past dates
+      if (isDatePast(slotDate)) return false;
+      
+      // If it's today, exclude past times
+      if (isToday(slotDate) && isTimePassedToday(slot.time)) return false;
+      
+      return true;
+    }
   ) || [];
 
   const getNextAvailableSlot = () => {
     if (availableSlots.length === 0) return null;
     
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    const todayIST = getCurrentISTDate();
     
     const futureSlots = availableSlots.filter(slot => {
       const slotDate = new Date(slot.date);
-      slotDate.setHours(0, 0, 0, 0);
-      return slotDate >= today;
+      
+      // Exclude Sundays
+      if (slotDate.getDay() === 0) return false;
+      
+      // Exclude past dates
+      if (isDatePast(slotDate)) return false;
+      
+      // If it's today, exclude past times
+      if (isToday(slotDate) && isTimePassedToday(slot.time)) return false;
+      
+      return true;
     });
     
     if (futureSlots.length === 0) return availableSlots[0];
@@ -30,7 +60,9 @@ function EmployeeCard({ employee, onBookClick }) {
       if (dateA.getTime() !== dateB.getTime()) {
         return dateA - dateB;
       }
-      return a.time.localeCompare(b.time);
+      // Sort by working hours order
+      const timeOrder = workingHours.indexOf(a.time) - workingHours.indexOf(b.time);
+      return timeOrder;
     });
     
     return futureSlots[0];
@@ -64,7 +96,20 @@ function EmployeeCard({ employee, onBookClick }) {
       
       <div className="card-content">
         <div className="employee-image">
-          <div className="image-placeholder">
+          {employee.image ? (
+            <img 
+              src={employee.image} 
+              alt={employee.name}
+              className="employee-photo"
+              onError={(e) => {
+                // Fallback to placeholder if image fails to load
+                e.target.style.display = 'none';
+                const placeholder = e.target.parentElement.querySelector('.image-placeholder');
+                if (placeholder) placeholder.style.display = 'flex';
+              }}
+            />
+          ) : null}
+          <div className="image-placeholder" style={{ display: employee.image ? 'none' : 'flex' }}>
             {employee.name.charAt(0)}
           </div>
         </div>

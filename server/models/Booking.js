@@ -11,6 +11,15 @@ const bookingSchema = new mongoose.Schema({
     ref: 'Employee',
     required: true
   },
+  // Denormalized employee data for performance and reliability
+  employeeName: {
+    type: String,
+    trim: true
+  },
+  employeeTitle: {
+    type: String,
+    trim: true
+  },
   bookingDate: {
     type: Date,
     required: true

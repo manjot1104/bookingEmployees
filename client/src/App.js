@@ -1,17 +1,19 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate, Link } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate, Link, NavLink, useLocation } from 'react-router-dom';
 import './App.css';
 import Login from './components/Login';
 import Home from './components/Home';
 import EmployeeProfile from './components/EmployeeProfile';
 import BookingPage from './components/BookingPage';
 import MyBookings from './components/MyBookings';
+import AdminPanel from './components/AdminPanel';
 import { getAuthToken, setAuthToken, removeAuthToken, getCurrentUser } from './services/api';
 
 function AppContent() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [user, setUser] = useState(null);
   const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     const token = getAuthToken();
@@ -33,52 +35,113 @@ function AppContent() {
     }
   };
 
-  const handleLogin = (userData, token) => {
+  const handleLogin = (userData, token, redirectPath) => {
     setAuthToken(token);
     setIsAuthenticated(true);
     setUser(userData);
-    navigate('/');
+    // Navigate to redirect path or home
+    navigate(redirectPath || '/', { replace: true });
   };
 
   const handleLogout = () => {
     removeAuthToken();
     setIsAuthenticated(false);
     setUser(null);
-    navigate('/login');
+    navigate('/');
   };
 
   return (
     <>
-      {!isAuthenticated ? (
-        <Login onLogin={handleLogin} />
-      ) : (
-        <div className="app">
-          <header className="app-header">
-            <div className="header-content">
-              <div className="logo">
-                <h1>Booking Platform</h1>
-                <p>Employee Booking System</p>
+      <Routes>
+        <Route path="/login" element={<Login onLogin={handleLogin} />} />
+        <Route path="*" element={
+          <div className="app">
+            <header className="app-header">
+              <div className="header-content">
+                <nav className="main-nav centered">
+                  <NavLink 
+                    to="/" 
+                    className={({ isActive }) => {
+                      // Always active when not authenticated, or when on home page
+                      if (!isAuthenticated) return 'active';
+                      return isActive ? 'active' : '';
+                    }}
+                    end
+                  >
+                    Experts
+                  </NavLink>
+                  {isAuthenticated && (
+                    <>
+                      <NavLink 
+                        to="/my-bookings"
+                        className={({ isActive }) => isActive ? 'active' : ''}
+                      >
+                        My Bookings
+                      </NavLink>
+                      {user?.role === 'admin' && (
+                        <NavLink 
+                          to="/admin"
+                          className={({ isActive }) => isActive ? 'active' : ''}
+                        >
+                          Admin Panel
+                        </NavLink>
+                      )}
+                    </>
+                  )}
+                </nav>
+                <div className="header-actions">
+                  {isAuthenticated ? (
+                    <>
+                      <span className="user-name">Welcome, {user?.name}</span>
+                      <button onClick={handleLogout} className="logout-btn">Logout</button>
+                    </>
+                  ) : (
+                    <Link to="/login">
+                      <button className="login-btn-header">Login</button>
+                    </Link>
+                  )}
+                </div>
               </div>
-              <nav className="main-nav">
-                <Link to="/">Experts</Link>
-                <Link to="/my-bookings">My Bookings</Link>
-              </nav>
-              <div className="header-actions">
-                <span className="user-name">Welcome, {user?.name}</span>
-                <button onClick={handleLogout} className="logout-btn">Logout</button>
-              </div>
-            </div>
-          </header>
+            </header>
 
-          <Routes>
-            <Route path="/" element={<Home user={user} onLogout={handleLogout} />} />
-            <Route path="/employee/:id" element={<EmployeeProfile user={user} />} />
-            <Route path="/booking/:id" element={<BookingPage user={user} />} />
-            <Route path="/my-bookings" element={<MyBookings user={user} />} />
-            <Route path="*" element={<Navigate to="/" replace />} />
-          </Routes>
-        </div>
-      )}
+            <Routes>
+              <Route path="/" element={<Home user={user} isAuthenticated={isAuthenticated} onLogout={handleLogout} />} />
+              <Route path="/employee/:id" element={<EmployeeProfile user={user} isAuthenticated={isAuthenticated} />} />
+              <Route 
+                path="/booking/:id" 
+                element={
+                  isAuthenticated ? (
+                    <BookingPage user={user} />
+                  ) : (
+                    <Navigate to="/login" replace state={{ from: window.location.pathname }} />
+                  )
+                } 
+              />
+              <Route 
+                path="/my-bookings" 
+                element={
+                  isAuthenticated ? (
+                    <MyBookings user={user} />
+                  ) : (
+                    <Navigate to="/login" replace state={{ from: '/my-bookings' }} />
+                  )
+                } 
+              />
+              <Route 
+                path="/admin" 
+                element={
+                  isAuthenticated && user?.role === 'admin' ? (
+                    <AdminPanel user={user} onLogout={handleLogout} />
+                  ) : (
+                    <Navigate to="/" replace />
+                  )
+                } 
+              />
+              <Route path="*" element={<Navigate to="/" replace />} />
+            </Routes>
+          </div>
+        } />
+      </Routes>
     </>
   );
 }

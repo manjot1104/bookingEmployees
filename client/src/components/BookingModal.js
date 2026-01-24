@@ -1,8 +1,11 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { createBooking } from '../services/api';
+import { getCurrentISTDate, isDatePast, isToday, isTimePassedToday, formatISTDateString } from '../utils/dateUtils';
 import './BookingModal.css';
 
-function BookingModal({ employee, onClose, onBookingSuccess }) {
+function BookingModal({ employee, onClose, onBookingSuccess, isAuthenticated }) {
+  const navigate = useNavigate();
   const [bookingType, setBookingType] = useState('Online');
   const [selectedDate, setSelectedDate] = useState('');
   const [selectedTime, setSelectedTime] = useState('');
@@ -16,13 +19,25 @@ function BookingModal({ employee, onClose, onBookingSuccess }) {
       slot => slot.type === bookingType && !slot.isBooked
     ) || [];
 
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    const todayIST = getCurrentISTDate();
 
     const futureSlots = slots.filter(slot => {
       const slotDate = new Date(slot.date);
-      slotDate.setHours(0, 0, 0, 0);
-      return slotDate >= today;
+      
+      // Exclude past dates
+      if (isDatePast(slotDate)) return false;
+      
+      // Exclude Sundays
+      if (slotDate.getDay() === 0) return false;
+      
+      // Filter by working hours
+      const workingHours = ['10:00 AM', '11:00 AM', '12:00 PM', '01:00 PM', '02:00 PM', '03:00 PM', '04:00 PM', '05:00 PM'];
+      if (!workingHours.includes(slot.time)) return false;
+      
+      // If it's today, exclude past times
+      if (isToday(slotDate) && isTimePassedToday(slot.time)) return false;
+      
+      return true;
     });
 
     setAvailableSlots(futureSlots);
@@ -35,25 +50,49 @@ function BookingModal({ employee, onClose, onBookingSuccess }) {
   const getAvailableDates = () => {
     const dates = [...new Set(availableSlots.map(slot => {
       const date = new Date(slot.date);
-      return date.toISOString().split('T')[0];
+      return formatISTDateString(date);
     }))].sort();
 
     return dates;
   };
 
   const getAvailableTimes = (date) => {
+    const workingHours = ['10:00 AM', '11:00 AM', '12:00 PM', '01:00 PM', '02:00 PM', '03:00 PM', '04:00 PM', '05:00 PM'];
+    
     return availableSlots
       .filter(slot => {
         const slotDate = new Date(slot.date);
-        return slotDate.toISOString().split('T')[0] === date;
+        const slotDateStr = formatISTDateString(slotDate);
+        const targetDateStr = formatISTDateString(date);
+        
+        // If it's today, exclude past times
+        const isSlotToday = isToday(slotDate);
+        const isPastTime = isSlotToday && isTimePassedToday(slot.time);
+        
+        return slotDateStr === targetDateStr && !isPastTime;
       })
       .map(slot => slot.time)
-      .sort();
+      .sort((a, b) => {
+        const timeOrder = workingHours.indexOf(a) - workingHours.indexOf(b);
+        return timeOrder;
+      });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+    
+    if (!isAuthenticated) {
+      // Redirect to login with return path
+      onClose(); // Close modal first
+      navigate(`/login?redirect=/employee/${employee._id}`, {
+        state: {
+          from: `/employee/${employee._id}`,
+          message: 'Please login to book a session'
+        }
+      });
+      return;
+    }
     
     if (!selectedDate || !selectedTime) {
       setError('Please select a date and time');

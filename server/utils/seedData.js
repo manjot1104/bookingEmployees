@@ -6,8 +6,8 @@ const dummyEmployees = [
     title: 'Psychologist & CBT Therapist',
     experience: '10+ years',
     price: {
-      amount: 2500,
-      duration: 50,
+      amount: 1100,
+      duration: 45,
       currency: '₹'
     },
     expertise: ['Stress', 'Anxiety', 'Depression', 'Emotional regulation', 'Behavioral challenges'],
@@ -20,6 +20,7 @@ const dummyEmployees = [
     faqAnswer: 'I chose the field of therapy to support people in understanding their thoughts, emotions, and behaviors, and to guide them toward healthier coping strategies. I believe in creating a safe, empathetic, and non-judgmental space for every client.',
     testimonial: 'Dr. Sunil\'s extensive experience and practical CBT approach have been instrumental in my recovery from depression. His goal-oriented therapy and ethical practice have helped me develop long-term coping strategies. I feel much more equipped to handle life\'s challenges now.',
     email: 'kumarsunil1002452@gmail.com',
+    image: '/therapists/kumarsunil1002452.jpeg',
     availableSlots: generateSlots('Online', 7)
   },
   {
@@ -27,7 +28,7 @@ const dummyEmployees = [
     title: 'Psychologist',
     experience: '4+ years of experience',
     price: {
-      amount: 1800,
+      amount: 1100,
       duration: 45,
       currency: '₹'
     },
@@ -41,6 +42,7 @@ const dummyEmployees = [
     faqAnswer: 'I wanted to become a therapist because I value meaningful human connection and believe that with the right tools and support, people can make lasting psychological changes. Being able to support others through difficult phases of life is both challenging and deeply fulfilling for me.',
     testimonial: 'Sessions with Prithvi are going great. They have been really helpful, I have noticed significant progress after meeting them. The structured approach and evidence-based techniques have made a real difference in my mental well-being.',
     email: 'prithvipadam@gmail.com',
+    image: '/therapists/prithvipadam.jpeg',
     availableSlots: generateSlots('Online', 7)
   },
   {
@@ -48,7 +50,7 @@ const dummyEmployees = [
     title: 'Counselling Psychologist',
     experience: '2+ years of experience',
     price: {
-      amount: 1500,
+      amount: 1100,
       duration: 45,
       currency: '₹'
     },
@@ -62,6 +64,7 @@ const dummyEmployees = [
     faqAnswer: 'I am driven by the power of early intervention. My goal is to equip young people with psychological resilience today, so they don\'t have to spend their adulthood "fixing" their childhood. I combine evidence-based clinical rigor with a relatable, creative approach that lowers the defenses of young clients, making complex therapy feel accessible and safe.',
     testimonial: 'Priyanka has been wonderful with my child. Her approach is gentle yet effective, and my child feels comfortable opening up to her. We have seen great improvement in managing anxiety and emotional regulation.',
     email: 'leekha.priyanka@gmail.com',
+    image: '/therapists/leekha.priyanka.jpeg',
     availableSlots: generateSlots('Online', 7)
   },
   {
@@ -69,7 +72,7 @@ const dummyEmployees = [
     title: 'Psychologist',
     experience: '2.5+ years of experience',
     price: {
-      amount: 1600,
+      amount: 1100,
       duration: 45,
       currency: '₹'
     },
@@ -83,6 +86,7 @@ const dummyEmployees = [
     faqAnswer: 'I want to become a therapist because I genuinely want to help people understand themselves better. Many individuals struggle silently with emotions, stress, or emotional pain and often they simply need someone who listens without judgement. I believe that therapy can provide people with clarity, emotional strength and healthier ways to cope with life\'s challenges. Being a therapist allows me to support others in their healing journey and help them feel understood, valued and empowered.',
     testimonial: 'Dr. Vanita has been extremely supportive throughout my therapy journey. Her CBT approach has helped me manage my anxiety and depression effectively. I feel more in control of my emotions now.',
     email: 'vanita734722@gmail.com',
+    image: '/therapists/vanita734722.jpeg',
     availableSlots: generateSlots('Online', 7)
   },
   {
@@ -90,7 +94,7 @@ const dummyEmployees = [
     title: 'Psychologist',
     experience: '3+ years of experience',
     price: {
-      amount: 1700,
+      amount: 1100,
       duration: 45,
       currency: '₹'
     },
@@ -104,6 +108,7 @@ const dummyEmployees = [
     faqAnswer: 'I didn\'t choose this field because I had all the answers. I chose it because I kept meeting people who were silently struggling, and I realised that being present, listening without judging, and helping someone understand themselves can change a life.',
     testimonial: 'Ramandeep has a wonderful ability to make you feel heard and understood. Her non-judgmental approach and practical strategies have helped me work through my self-esteem and relationship issues. I highly recommend her.',
     email: 'lordslove89@gmail.com',
+    image: '/therapists/lordslove89.jpeg',
     availableSlots: generateSlots('Online', 7)
   },
   {
@@ -111,8 +116,8 @@ const dummyEmployees = [
     title: 'Clinical Psychologist',
     experience: '3+ years of experience',
     price: {
-      amount: 2200,
-      duration: 50,
+      amount: 1200,
+      duration: 45,
       currency: '₹'
     },
     expertise: ['Depression', 'Anxiety disorders', 'Post-Traumatic Stress Disorder (PTSD)', 'Self-esteem and identity-related concerns', 'LGBTQIA+ mental health issues', 'School refusal and academic stress', 'Adolescent behavioral and emotional difficulties'],
@@ -125,6 +130,7 @@ const dummyEmployees = [
     faqAnswer: 'I chose psychology because I have always been deeply interested in understanding human emotions, behavior, and the silent struggles people carry within them. Over time, this interest grew into a purpose—to create a safe, non-judgmental space where individuals feel heard, understood, and supported. Becoming a psychologist allows me to walk alongside people during their most vulnerable moments and help them develop insight, resilience, and meaningful change. For me, psychology is not just a profession; it is a commitment to empathy, healing, and growth.',
     testimonial: 'Dr. Mitali is an exceptional psychologist. Her expertise in working with LGBTQIA+ individuals and trauma has been invaluable. She creates a truly safe space where I feel comfortable being myself. Her integrative approach has helped me make significant progress.',
     email: 'mitalisharma61196@gmail.com',
+    image: '/therapists/mitalisharma61196.jpeg',
     availableSlots: generateSlots('Online', 7)
   },
   {
@@ -132,7 +138,7 @@ const dummyEmployees = [
     title: 'Psychologist',
     experience: '5+ years of experience',
     price: {
-      amount: 2000,
+      amount: 1200,
       duration: 45,
       currency: '₹'
     },
@@ -146,29 +152,39 @@ const dummyEmployees = [
     faqAnswer: 'I have chosen to be a Psychologist on my clinical experiences. Emotions are baseline of human behavior. Both progress and regression depends upon our sensitivity and emotional level. In my clinical practise I have seen diseases not getting cured because of stress and doctors used to say there is some sort of stress lying because of which medicine are not responding. Then I have taken decision why not choose a profession which helps patient to strengthen their sensitivity and curing disease. While adopting this profession I found wonderful result not only at psychology point of view but as well in physical complaints also, patient developed themselves as a strong personality.',
     testimonial: 'Dr. Ritu\'s holistic approach to therapy has been life-changing. She helped me understand the connection between my emotional state and physical health. Her expertise in family and couple counseling has improved my relationships significantly.',
     email: 'rmudgil7198@gmail.com',
+    image: '/therapists/rmudgil7198.jpeg',
     availableSlots: generateSlots('Online', 7)
   }
 ];
 
 function generateSlots(type, days) {
   const slots = [];
-  // Morning slots
-  const morningTimes = ['09:00 AM', '10:00 AM', '11:00 AM'];
-  // Afternoon slots
-  const afternoonTimes = ['12:00 PM', '01:00 PM', '02:00 PM', '03:00 PM', '04:00 PM', '05:00 PM'];
-  // Evening slots
-  const eveningTimes = ['06:00 PM', '07:00 PM'];
+  // Working hours: 10:00 AM to 6:00 PM (18:00)
+  // Generate slots every hour from 10:00 AM to 5:00 PM (last slot at 5:00 PM for 1-hour sessions)
+  const workingTimes = [
+    '10:00 AM', '11:00 AM', 
+    '12:00 PM', '01:00 PM', '02:00 PM', '03:00 PM', '04:00 PM', '05:00 PM'
+  ];
   
-  const allTimes = [...morningTimes, ...afternoonTimes, ...eveningTimes];
+  let daysGenerated = 0;
+  let currentDay = 0;
   
-  for (let i = 0; i < days; i++) {
+  // Generate slots for the specified number of working days (excluding Sundays)
+  while (daysGenerated < days) {
     const date = new Date();
-    date.setDate(date.getDate() + i);
+    date.setDate(date.getDate() + currentDay);
     date.setHours(0, 0, 0, 0);
+    
+    // Skip Sundays (day 0)
+    const dayOfWeek = date.getDay();
+    if (dayOfWeek === 0) {
+      currentDay++;
+      continue;
+    }
     
     // Generate slots for both Online and In-person
     ['Online', 'In-person'].forEach(slotType => {
-      allTimes.forEach(time => {
+      workingTimes.forEach(time => {
         // Make some slots unavailable randomly (20% chance)
         const isBooked = Math.random() < 0.2;
         
@@ -180,6 +196,9 @@ function generateSlots(type, days) {
         });
       });
     });
+    
+    daysGenerated++;
+    currentDay++;
   }
   
   return slots;

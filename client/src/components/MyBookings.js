@@ -151,9 +151,23 @@ function MyBookings({ user }) {
             <div key={booking._id} className="booking-card">
               <div className="booking-card-header">
                 <div className="booking-employee-info">
-                  <div className="employee-avatar">
-                    {employeeName !== 'Unknown Therapist' ? employeeName.charAt(0).toUpperCase() : 'E'}
-                  </div>
+                    <div className="employee-avatar">
+                      {booking.employee?.image ? (
+                        <img 
+                          src={booking.employee.image} 
+                          alt={employeeName}
+                          className="employee-avatar-photo"
+                          onError={(e) => {
+                            e.target.style.display = 'none';
+                            const span = e.target.parentElement.querySelector('span');
+                            if (span) span.style.display = 'block';
+                          }}
+                        />
+                      ) : null}
+                      <span style={{ display: booking.employee?.image ? 'none' : 'block' }}>
+                        {employeeName !== 'Unknown Therapist' ? employeeName.charAt(0).toUpperCase() : 'E'}
+                      </span>
+                    </div>
                   <div className="employee-details">
                     <h3>{employeeName}</h3>
                     <p className="employee-title">{employeeTitle}</p>
