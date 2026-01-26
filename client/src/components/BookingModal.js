@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { createBooking } from '../services/api';
-import { getCurrentISTDate, isDatePast, isToday, isTimePassedToday, formatISTDateString } from '../utils/dateUtils';
+import { isDatePast, isToday, isTimePassedToday, formatISTDateString } from '../utils/dateUtils';
 import './BookingModal.css';
 
 function BookingModal({ employee, onClose, onBookingSuccess, isAuthenticated }) {

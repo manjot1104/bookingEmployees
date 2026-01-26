@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getCurrentISTDate, isDatePast, isToday, isTimePassedToday } from '../utils/dateUtils';
+import { isDatePast, isToday, isTimePassedToday } from '../utils/dateUtils';
 import './EmployeeCard.css';
 
 function EmployeeCard({ employee, onBookClick }) {
