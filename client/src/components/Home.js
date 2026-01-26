@@ -98,6 +98,7 @@ function Home({ user, isAuthenticated, onLogout }) {
           onClose={() => setShowBookingModal(false)}
           onBookingSuccess={handleBookingSuccess}
           isAuthenticated={isAuthenticated}
+          user={user}
         />
       )}
     </div>

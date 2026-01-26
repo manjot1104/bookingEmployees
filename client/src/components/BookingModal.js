@@ -1,10 +1,29 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { createBooking } from '../services/api';
+import { createBooking, createRazorpayOrder, verifyRazorpayPayment } from '../services/api';
 import { isDatePast, isToday, isTimePassedToday, formatISTDateString } from '../utils/dateUtils';
 import './BookingModal.css';
 
-function BookingModal({ employee, onClose, onBookingSuccess, isAuthenticated }) {
+// Load Razorpay script
+const loadRazorpay = () => {
+  return new Promise((resolve) => {
+    if (window.Razorpay) {
+      resolve(window.Razorpay);
+      return;
+    }
+    const script = document.createElement('script');
+    script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+    script.onload = () => {
+      resolve(window.Razorpay);
+    };
+    script.onerror = () => {
+      resolve(null);
+    };
+    document.body.appendChild(script);
+  });
+};
+
+function BookingModal({ employee, onClose, onBookingSuccess, isAuthenticated, user }) {
   const navigate = useNavigate();
   const [bookingType, setBookingType] = useState('Online');
   const [selectedDate, setSelectedDate] = useState('');
@@ -13,6 +32,7 @@ function BookingModal({ employee, onClose, onBookingSuccess, isAuthenticated }) 
   const [availableSlots, setAvailableSlots] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [razorpayLoaded, setRazorpayLoaded] = useState(false);
 
   const loadAvailableSlots = useCallback(() => {
     const slots = employee.availableSlots?.filter(
@@ -43,6 +63,10 @@ function BookingModal({ employee, onClose, onBookingSuccess, isAuthenticated }) 
 
   useEffect(() => {
     loadAvailableSlots();
+    // Load Razorpay script
+    loadRazorpay().then(() => {
+      setRazorpayLoaded(true);
+    });
   }, [loadAvailableSlots]);
 
   const getAvailableDates = () => {
@@ -97,10 +121,16 @@ function BookingModal({ employee, onClose, onBookingSuccess, isAuthenticated }) 
       return;
     }
 
+    if (!razorpayLoaded) {
+      setError('Payment gateway is loading. Please wait...');
+      return;
+    }
+
     setLoading(true);
 
     try {
-      await createBooking({
+      // Step 1: Create booking
+      const bookingResponse = await createBooking({
         employeeId: employee._id,
         bookingDate: selectedDate,
         bookingTime: selectedTime,
@@ -108,10 +138,66 @@ function BookingModal({ employee, onClose, onBookingSuccess, isAuthenticated }) 
         notes
       });
 
-      onBookingSuccess();
+      const bookingId = bookingResponse.booking._id;
+      const price = employee.price.amount;
+
+      // Step 2: Create Razorpay order
+      const orderResponse = await createRazorpayOrder(bookingId, price);
+
+      // Step 3: Open Razorpay checkout
+      const options = {
+        key: orderResponse.key,
+        amount: orderResponse.amount,
+        currency: orderResponse.currency,
+        name: 'Booking Platform',
+        description: `Booking with ${employee.name}`,
+        order_id: orderResponse.orderId,
+        handler: async function (response) {
+          // Payment successful
+          try {
+            await verifyRazorpayPayment(
+              response.razorpay_order_id,
+              response.razorpay_payment_id,
+              response.razorpay_signature,
+              bookingId
+            );
+
+            alert('Payment successful! Booking confirmed.');
+            onBookingSuccess();
+            onClose();
+            navigate('/my-bookings');
+          } catch (error) {
+            console.error('Payment verification error:', error);
+            alert('Payment verification failed. Please contact support.');
+            setLoading(false);
+          }
+        },
+        prefill: {
+          name: user?.name || '',
+          email: user?.email || '',
+          contact: user?.phone || ''
+        },
+        theme: {
+          color: '#ff6b35'
+        },
+        modal: {
+          ondismiss: function() {
+            setLoading(false);
+          }
+        }
+      };
+
+      const razorpay = new window.Razorpay(options);
+      razorpay.on('payment.failed', function (response) {
+        alert('Payment failed. Please try again.');
+        setLoading(false);
+      });
+      
+      razorpay.open();
+      setLoading(false);
     } catch (err) {
+      console.error('Booking/Payment error:', err);
       setError(err.response?.data?.message || 'Failed to create booking. Please try again.');
-    } finally {
       setLoading(false);
     }
   };
@@ -226,8 +312,8 @@ function BookingModal({ employee, onClose, onBookingSuccess, isAuthenticated }) 
             <button type="button" className="cancel-btn" onClick={onClose}>
               Cancel
             </button>
-            <button type="submit" className="submit-btn" disabled={loading}>
-              {loading ? 'Booking...' : 'Confirm Booking'}
+            <button type="submit" className="submit-btn" disabled={loading || !razorpayLoaded}>
+              {loading ? 'Processing...' : !razorpayLoaded ? 'Loading Payment...' : 'Confirm Booking & Pay'}
             </button>
           </div>
         </form>
