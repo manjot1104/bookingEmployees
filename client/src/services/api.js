@@ -117,13 +117,18 @@ export const getCurrentUser = async () => {
 
 // Employee functions
 export const getEmployees = async (queryParams = '') => {
-  const url = queryParams ? `/employees?${queryParams}` : '/employees';
+  // Add cache-busting parameter to ensure fresh data
+  const timestamp = new Date().getTime();
+  const separator = queryParams ? '&' : '?';
+  const url = queryParams ? `/employees?${queryParams}&_t=${timestamp}` : `/employees?_t=${timestamp}`;
   const response = await api.get(url);
   return response.data;
 };
 
 export const getEmployee = async (id) => {
-  const response = await api.get(`/employees/${id}`);
+  // Add cache-busting parameter to ensure fresh data
+  const timestamp = new Date().getTime();
+  const response = await api.get(`/employees/${id}?_t=${timestamp}`);
   return response.data;
 };
 

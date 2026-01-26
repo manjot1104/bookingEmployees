@@ -185,14 +185,13 @@ function generateSlots(type, days) {
     // Generate slots for both Online and In-person
     ['Online', 'In-person'].forEach(slotType => {
       workingTimes.forEach(time => {
-        // Make some slots unavailable randomly (20% chance)
-        const isBooked = Math.random() < 0.2;
-        
+        // All slots start as available (isBooked: false)
+        // Slots will only be marked as booked when actual bookings are created
         slots.push({
           date: new Date(date),
           time: time,
           type: slotType,
-          isBooked: isBooked
+          isBooked: false
         });
       });
     });

@@ -17,7 +17,9 @@
     "update-pricing": "node server/utils/updatePricing.js",
     "update-duration": "node server/utils/updateDuration.js",
     "update-images": "node server/utils/updateImagePaths.js",
-    "fix-booking-employees": "node server/utils/fixBookingEmployeeData.js"
+    "fix-booking-employees": "node server/utils/fixBookingEmployeeData.js",
+    "reset-slots-bookings": "node server/utils/resetSlotsAndBookings.js",
+    "analyze-slots": "node server/utils/analyzeSlots.js"
   },
   "keywords": [
     "booking",
