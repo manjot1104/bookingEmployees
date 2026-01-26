@@ -19,8 +19,6 @@ function BookingModal({ employee, onClose, onBookingSuccess, isAuthenticated }) 
       slot => slot.type === bookingType && !slot.isBooked
     ) || [];
 
-    const todayIST = getCurrentISTDate();
-
     const futureSlots = slots.filter(slot => {
       const slotDate = new Date(slot.date);
       

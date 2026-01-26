@@ -119,7 +119,6 @@ export const getCurrentUser = async () => {
 export const getEmployees = async (queryParams = '') => {
   // Add cache-busting parameter to ensure fresh data
   const timestamp = new Date().getTime();
-  const separator = queryParams ? '&' : '?';
   const url = queryParams ? `/employees?${queryParams}&_t=${timestamp}` : `/employees?_t=${timestamp}`;
   const response = await api.get(url);
   return response.data;

@@ -10,11 +10,6 @@ function AdminPanel({ user, onLogout }) {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [selectedEmployee, setSelectedEmployee] = useState(null);
-
-  useEffect(() => {
-    loadData();
-  }, [activeTab]);
 
   const loadData = async () => {
     setLoading(true);
@@ -41,12 +36,17 @@ function AdminPanel({ user, onLogout }) {
           break;
       }
     } catch (err) {
-      console.error('Error loading admin data:', err);
+      console.error('Error loading data:', err);
       setError(err.response?.data?.message || 'Failed to load data');
     } finally {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    loadData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeTab]);
 
   const formatDate = (dateString) => {
     if (!dateString) return 'N/A';

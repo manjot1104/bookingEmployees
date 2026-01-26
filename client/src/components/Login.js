@@ -1,11 +1,10 @@
-import React, { useState, useEffect } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import React, { useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import { login, register } from '../services/api';
 import './Login.css';
 
 function Login({ onLogin }) {
   const location = useLocation();
-  const navigate = useNavigate();
   const redirectPath = new URLSearchParams(location.search).get('redirect') || location.state?.from || '/';
   const [isLogin, setIsLogin] = useState(true);
   const [formData, setFormData] = useState({

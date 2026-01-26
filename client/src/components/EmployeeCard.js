@@ -35,8 +35,6 @@ function EmployeeCard({ employee, onBookClick }) {
   const getNextAvailableSlot = () => {
     if (availableSlots.length === 0) return null;
     
-    const todayIST = getCurrentISTDate();
-    
     const futureSlots = availableSlots.filter(slot => {
       const slotDate = new Date(slot.date);
       

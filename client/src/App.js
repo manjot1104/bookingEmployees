@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate, Link, NavLink, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate, Link, NavLink } from 'react-router-dom';
 import './App.css';
 import Login from './components/Login';
 import Home from './components/Home';
@@ -13,7 +13,6 @@ function AppContent() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [user, setUser] = useState(null);
   const navigate = useNavigate();
-  const location = useLocation();
 
   useEffect(() => {
     const token = getAuthToken();
