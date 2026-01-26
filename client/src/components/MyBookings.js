@@ -55,12 +55,15 @@ function MyBookings({ user }) {
     }
 
     try {
-      await cancelBooking(bookingId);
-      alert('Booking cancelled successfully!');
-      loadBookings(); // Reload bookings
+      const response = await cancelBooking(bookingId);
+      // Remove the cancelled booking from the list immediately
+      setBookings(prevBookings => prevBookings.filter(booking => booking._id !== bookingId));
+      // Optionally show a success message
+      console.log('Booking cancelled successfully');
     } catch (err) {
       console.error('Error cancelling booking:', err);
-      alert(err.response?.data?.message || 'Failed to cancel booking. Please try again.');
+      const errorMessage = err.response?.data?.message || err.message || 'Failed to cancel booking. Please try again.';
+      alert(errorMessage);
     }
   };
 
@@ -133,7 +136,7 @@ function MyBookings({ user }) {
         </div>
       ) : (
         <div className="bookings-list">
-          {bookings.map((booking) => {
+          {bookings.filter(booking => booking.status !== 'Cancelled').map((booking) => {
             // Debug: Log booking data
             if (!booking.employee?.name) {
               console.warn('Booking missing employee name:', {

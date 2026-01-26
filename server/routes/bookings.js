@@ -191,19 +191,26 @@ router.patch('/:id/cancel', auth, async (req, res) => {
     await booking.save();
 
     // Free up the slot
-    const employee = await Employee.findById(booking.employee);
-    const slot = employee.availableSlots.find(
-      s => s.date.toISOString().split('T')[0] === booking.bookingDate.toISOString().split('T')[0] &&
-           s.time === booking.bookingTime &&
-           s.type === booking.type
-    );
-    
-    if (slot) {
-      slot.isBooked = false;
-      await employee.save();
+    try {
+      const employee = await Employee.findById(booking.employee);
+      if (employee) {
+        const slot = employee.availableSlots.find(
+          s => s.date.toISOString().split('T')[0] === booking.bookingDate.toISOString().split('T')[0] &&
+               s.time === booking.bookingTime &&
+               s.type === booking.type
+        );
+        
+        if (slot) {
+          slot.isBooked = false;
+          await employee.save();
+        }
+      }
+    } catch (slotError) {
+      // Log error but don't fail the cancellation
+      console.error('Error freeing up slot:', slotError);
     }
 
-    res.json({ message: 'Booking cancelled successfully', booking });
+    res.status(200).json({ message: 'Booking cancelled successfully', booking });
   } catch (error) {
     console.error('Cancel booking error:', error);
     res.status(500).json({ message: 'Server error' });
