@@ -55,7 +55,7 @@ function MyBookings({ user }) {
     }
 
     try {
-      const response = await cancelBooking(bookingId);
+      await cancelBooking(bookingId);
       // Remove the cancelled booking from the list immediately
       setBookings(prevBookings => prevBookings.filter(booking => booking._id !== bookingId));
       // Optionally show a success message
