@@ -213,12 +213,6 @@ function BookingPage({ user }) {
     }
   };
 
-  const calculatePrice = () => {
-    if (!employee) return 0;
-    // All sessions are 45 minutes, so price is the base price
-    return employee.price.amount;
-  };
-
   const getPriceDetails = () => {
     if (!employee) return { original: 0, discount: 0, final: 0, hasDiscount: false };
     
