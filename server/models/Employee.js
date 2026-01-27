@@ -113,4 +113,10 @@ const employeeSchema = new mongoose.Schema({
   }
 });
 
+// Add indexes for better query performance
+employeeSchema.index({ isActive: 1, createdAt: -1 });
+employeeSchema.index({ center: 1 });
+employeeSchema.index({ gender: 1 });
+employeeSchema.index({ expertise: 1 });
+
 module.exports = mongoose.model('Employee', employeeSchema);
