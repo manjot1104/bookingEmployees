@@ -147,12 +147,13 @@ function Login({ onLogin }) {
           {!isLogin && (
             <>
               <div className="form-group">
-                <label>Phone (Optional)</label>
+                <label>Phone <span style={{ color: 'red' }}>*</span></label>
                 <input
                   type="tel"
                   name="phone"
                   value={formData.phone}
                   onChange={handleChange}
+                  required
                   placeholder="Enter your phone number"
                 />
               </div>

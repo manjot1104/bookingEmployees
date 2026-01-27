@@ -35,8 +35,36 @@ router.get('/', async (req, res) => {
       }
     }
 
-    const employees = await Employee.find(query).sort({ createdAt: -1 });
-    res.json(employees);
+    // Optimize query: limit availableSlots to only future slots to reduce payload size
+    // This significantly reduces data transfer (from ~112 slots to ~10-20 per employee)
+    const employees = await Employee.find(query)
+      .sort({ createdAt: -1 })
+      .lean(); // Use lean() for better performance
+    
+    // Filter slots to only include future, available slots for the list view
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    const optimizedEmployees = employees.map(emp => {
+      if (emp.availableSlots && emp.availableSlots.length > 0) {
+        // Only keep future, non-booked slots (max 20 for performance)
+        const futureSlots = emp.availableSlots
+          .filter(slot => {
+            const slotDate = new Date(slot.date);
+            slotDate.setHours(0, 0, 0, 0);
+            return slotDate >= today && !slot.isBooked;
+          })
+          .slice(0, 20); // Limit to 20 slots max
+        
+        return {
+          ...emp,
+          availableSlots: futureSlots
+        };
+      }
+      return emp;
+    });
+    
+    res.json(optimizedEmployees);
   } catch (error) {
     console.error('Get employees error:', error);
     res.status(500).json({ message: 'Server error' });

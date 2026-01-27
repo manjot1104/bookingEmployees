@@ -40,6 +40,26 @@ router.post('/', auth, [
       return res.status(400).json({ message: 'Selected slot is not available' });
     }
 
+    // Check if user is new (has no previous bookings)
+    const previousBookings = await Booking.countDocuments({ 
+      user: req.user._id,
+      status: { $ne: 'Cancelled' }
+    });
+    const isNewUser = previousBookings === 0;
+
+    // Calculate price with discount for new users
+    const originalAmount = employee.price.amount;
+    let finalAmount = originalAmount;
+    let discountCode = null;
+    let discountAmount = 0;
+
+    if (isNewUser) {
+      // Apply 20% discount for new users on first session
+      discountCode = 'WELCOME20';
+      discountAmount = Math.round(originalAmount * 0.2);
+      finalAmount = originalAmount - discountAmount;
+    }
+
     // Create booking with denormalized employee data
     const booking = new Booking({
       user: req.user._id,
@@ -50,9 +70,12 @@ router.post('/', auth, [
       bookingTime,
       type,
       price: {
-        amount: employee.price.amount,
+        amount: finalAmount,
         currency: employee.price.currency
       },
+      originalAmount: isNewUser ? originalAmount : undefined,
+      discountCode: discountCode,
+      discountAmount: discountAmount,
       notes,
       status: 'Pending'
     });
@@ -96,51 +119,58 @@ router.post('/', auth, [
 // Get user's bookings (requires authentication)
 router.get('/my-bookings', auth, async (req, res) => {
   try {
-    const bookings = await Booking.find({ user: req.user._id })
-      .populate({
-        path: 'employee',
-        select: 'name title experience price expertise languages image bio qualifications email',
-        model: 'Employee'
-      })
-      .sort({ bookingDate: -1 });
+    // Get bookings without populate first to check raw employee field
+    const bookingsRaw = await Booking.find({ user: req.user._id })
+      .sort({ bookingDate: -1 })
+      .lean(); // Use lean() to get plain objects
     
-    console.log('📋 Bookings found:', bookings.length);
+    console.log('📋 Bookings found:', bookingsRaw.length);
     
-    // Debug: Check each booking's employee data
-    const bookingsWithEmployee = bookings.map((booking, index) => {
-      if (!booking.employee) {
-        console.error(`❌ Booking ${index + 1} (ID: ${booking._id}) has no employee populated!`);
-        console.error(`   Employee ID in booking: ${booking.employee}`);
-      } else {
-        console.log(`✅ Booking ${index + 1}: Employee = ${booking.employee.name} (ID: ${booking.employee._id})`);
-      }
-      return booking;
-    });
-
-    // If any booking has missing employee, try to fetch it separately
-    for (let i = 0; i < bookingsWithEmployee.length; i++) {
-      const booking = bookingsWithEmployee[i];
-      if (!booking.employee || !booking.employee.name) {
-        console.log(`⚠️  Attempting to fetch employee for booking ${booking._id}`);
-        try {
-          // Get employee ID from booking (might be stored as ObjectId)
-          const employeeId = booking.employee?._id || booking.employee;
-          if (employeeId) {
-            const employee = await Employee.findById(employeeId);
+    // Process each booking and populate employee or use denormalized data
+    const bookingsWithEmployee = await Promise.all(
+      bookingsRaw.map(async (booking) => {
+        // Check if employee field exists and is valid
+        const employeeId = booking.employee;
+        
+        let employeeData = null;
+        
+        // Try to populate employee if we have a valid ID
+        if (employeeId && employeeId.toString && employeeId.toString().length > 0) {
+          try {
+            const employee = await Employee.findById(employeeId)
+              .select('name title experience price expertise languages image bio qualifications email');
             if (employee) {
-              booking.employee = employee;
-              console.log(`✅ Successfully fetched employee: ${employee.name}`);
-            } else {
-              console.error(`❌ Employee not found with ID: ${employeeId}`);
+              employeeData = employee;
             }
-          } else {
-            console.error(`❌ No employee ID found in booking ${booking._id}`);
+          } catch (err) {
+            console.error(`❌ Error fetching employee ${employeeId} for booking ${booking._id}:`, err.message);
           }
-        } catch (err) {
-          console.error(`❌ Error fetching employee for booking ${booking._id}:`, err.message);
         }
-      }
-    }
+        
+        // If employee not found or null, use denormalized data
+        if (!employeeData) {
+          if (booking.employeeName) {
+            employeeData = {
+              _id: employeeId || null,
+              name: booking.employeeName,
+              title: booking.employeeTitle || 'N/A',
+              image: null
+            };
+          } else {
+            employeeData = {
+              name: 'Unknown Employee',
+              title: 'N/A',
+              image: null
+            };
+          }
+        }
+        
+        return {
+          ...booking,
+          employee: employeeData
+        };
+      })
+    );
 
     res.json(bookingsWithEmployee);
   } catch (error) {

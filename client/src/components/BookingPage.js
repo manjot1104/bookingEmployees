@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useLocation, useNavigate } from 'react-router-dom';
-import { createBooking, getEmployee, createRazorpayOrder, verifyRazorpayPayment } from '../services/api';
+import { createBooking, getEmployee, createRazorpayOrder, verifyRazorpayPayment, getBooking } from '../services/api';
 import './BookingPage.css';
 
 // Load Razorpay script
@@ -32,6 +32,8 @@ function BookingPage({ user }) {
   const [bookingId, setBookingId] = useState(location.state?.existingBookingId || null);
   const [isExistingBooking, setIsExistingBooking] = useState(location.state?.isExistingBooking || false);
   const [razorpayLoaded, setRazorpayLoaded] = useState(false);
+  const [bookingData, setBookingData] = useState(null); // Store booking data with discount info
+  const [isNewUser, setIsNewUser] = useState(null); // null = checking, true/false = result
 
   const loadEmployee = useCallback(async () => {
     try {
@@ -57,8 +59,26 @@ function BookingPage({ user }) {
       setBookingId(location.state.existingBookingId);
       setIsExistingBooking(true);
     }
+
+    // Check if user is new (eligible for discount)
+    const checkIfNewUser = async () => {
+      try {
+        const { getMyBookings } = await import('../services/api');
+        const bookings = await getMyBookings();
+        // User is new if they have no bookings or only cancelled bookings
+        const activeBookings = bookings.filter(b => b.status !== 'Cancelled');
+        setIsNewUser(activeBookings.length === 0);
+      } catch (error) {
+        console.error('Error checking user bookings:', error);
+        setIsNewUser(false); // Default to false on error
+      }
+    };
+
+    if (user) {
+      checkIfNewUser();
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [id, location.state]);
+  }, [id, location.state, user]);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -110,6 +130,7 @@ function BookingPage({ user }) {
 
         newBookingId = bookingResponse.booking._id;
         setBookingId(newBookingId);
+        setBookingData(bookingResponse.booking); // Store booking data with discount info
         console.log('✅ New booking created:', newBookingId);
       } else {
         // Use existing booking ID
@@ -117,10 +138,27 @@ function BookingPage({ user }) {
         console.log('✅ Using existing booking ID:', newBookingId);
       }
 
-      // Step 2: Create Razorpay order
-      const orderResponse = await createRazorpayOrder(newBookingId, price);
+      // Step 2: Get booking to get the final price (with discount if applicable)
+      let finalPrice = employee.price.amount; // Default to original price
+      if (bookingData) {
+        finalPrice = bookingData.price.amount;
+      } else {
+        // Fetch booking if not already loaded
+        try {
+          const booking = await getBooking(newBookingId);
+          if (booking) {
+            finalPrice = booking.price.amount;
+            setBookingData(booking);
+          }
+        } catch (err) {
+          console.error('Error fetching booking:', err);
+        }
+      }
 
-      // Step 3: Open Razorpay checkout
+      // Step 3: Create Razorpay order with final price (already includes discount if applicable)
+      const orderResponse = await createRazorpayOrder(newBookingId, finalPrice);
+
+      // Step 4: Open Razorpay checkout
       const options = {
         key: orderResponse.key,
         amount: orderResponse.amount,
@@ -181,11 +219,40 @@ function BookingPage({ user }) {
     return employee.price.amount;
   };
 
+  const getPriceDetails = () => {
+    if (!employee) return { original: 0, discount: 0, final: 0, hasDiscount: false };
+    
+    const originalPrice = employee.price.amount;
+    let finalPrice = originalPrice;
+    let discountAmount = 0;
+    let hasDiscount = false;
+
+    // If booking data exists and has discount, use it (most accurate)
+    if (bookingData && bookingData.discountCode === 'WELCOME20') {
+      hasDiscount = true;
+      discountAmount = bookingData.discountAmount || Math.round(originalPrice * 0.2);
+      finalPrice = bookingData.price.amount || (originalPrice - discountAmount);
+    } 
+    // Otherwise, check if user is new (for preview before booking creation)
+    else if (isNewUser === true) {
+      hasDiscount = true;
+      discountAmount = Math.round(originalPrice * 0.2);
+      finalPrice = originalPrice - discountAmount;
+    }
+
+    return {
+      original: originalPrice,
+      discount: discountAmount,
+      final: finalPrice,
+      hasDiscount: hasDiscount
+    };
+  };
+
   if (!employee) {
     return <div className="booking-loading">Loading...</div>;
   }
 
-  const price = calculatePrice();
+  const priceDetails = getPriceDetails();
   const formattedDate = selectedDate ? (() => {
     const date = new Date(selectedDate);
     const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
@@ -201,10 +268,18 @@ function BookingPage({ user }) {
             ← Back
           </button>
 
-          <div className="discount-box">
-            <strong>20% Off</strong>
-            <p>20% Off on Pre-booking First Session</p>
-          </div>
+            {priceDetails.hasDiscount && (
+            <div className="discount-box" style={{ backgroundColor: '#4caf50', color: 'white' }}>
+              <strong>🎉 WELCOME20 Applied!</strong>
+              <p>20% Off on Your First Session</p>
+            </div>
+          )}
+          {!priceDetails.hasDiscount && (
+            <div className="discount-box">
+              <strong>20% Off</strong>
+              <p>20% Off on Pre-booking First Session (New Users Only)</p>
+            </div>
+          )}
 
           <div className="progress-tracker">
             <div className="progress-step completed">
@@ -303,11 +378,22 @@ function BookingPage({ user }) {
             <h3>Pricing Details</h3>
             <div className="price-row">
               <span>Standard session price:</span>
-              <span>₹{price}.00</span>
+              <span>₹{priceDetails.original}.00</span>
             </div>
+            {priceDetails.hasDiscount && (
+              <>
+                <div className="price-row discount">
+                  <span>Discount (WELCOME20):</span>
+                  <span style={{ color: '#4caf50' }}>-₹{priceDetails.discount}.00</span>
+                </div>
+                <div className="price-row" style={{ fontSize: '0.9rem', color: '#666', marginTop: '0.5rem' }}>
+                  <span>🎉 Welcome discount applied!</span>
+                </div>
+              </>
+            )}
             <div className="price-row final">
               <span>Final amount to Pay:</span>
-              <span>₹{price}.00</span>
+              <span>₹{priceDetails.final}.00</span>
             </div>
           </div>
 

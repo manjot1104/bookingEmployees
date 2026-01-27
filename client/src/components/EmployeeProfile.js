@@ -497,14 +497,14 @@ function EmployeeProfile({ user, isAuthenticated }) {
                         const afternoon = times.filter(t => {
                           if (!t.time || !t.time.includes('PM')) return false;
                           const hour = parseInt(t.time.split(':')[0]);
-                          // 12:00 PM, 01:00 PM, 02:00 PM, 03:00 PM, 04:00 PM, 05:00 PM
-                          return hour === 12 || (hour >= 1 && hour <= 5);
+                          // 12:00 PM, 01:00 PM, 02:00 PM, 03:00 PM
+                          return hour === 12 || (hour >= 1 && hour <= 3);
                         });
                         const evening = times.filter(t => {
                           if (!t.time || !t.time.includes('PM')) return false;
                           const hour = parseInt(t.time.split(':')[0]);
-                          // 06:00 PM and later
-                          return hour >= 6;
+                          // 04:00 PM, 05:00 PM
+                          return hour >= 4 && hour <= 5;
                         });
                         
                         return (

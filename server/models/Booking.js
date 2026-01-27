@@ -69,6 +69,17 @@ const bookingSchema = new mongoose.Schema({
       default: '₹'
     }
   },
+  originalAmount: {
+    type: Number
+  },
+  discountCode: {
+    type: String,
+    trim: true
+  },
+  discountAmount: {
+    type: Number,
+    default: 0
+  },
   notes: {
     type: String,
     trim: true

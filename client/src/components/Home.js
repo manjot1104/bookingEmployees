@@ -10,14 +10,18 @@ function Home({ user, isAuthenticated, onLogout }) {
   const [filteredEmployees, setFilteredEmployees] = useState([]);
   const [selectedEmployee, setSelectedEmployee] = useState(null);
   const [showBookingModal, setShowBookingModal] = useState(false);
-  const [expertType, setExpertType] = useState('Psychiatrist');
+  const [expertType, setExpertType] = useState('Psychologists');
+  const [loading, setLoading] = useState(true);
 
   const loadEmployees = useCallback(async () => {
+    setLoading(true);
     try {
       const data = await getEmployees();
       setFilteredEmployees(data);
     } catch (error) {
       console.error('Error loading employees:', error);
+    } finally {
+      setLoading(false);
     }
   }, []);
 
@@ -64,10 +68,10 @@ function Home({ user, isAuthenticated, onLogout }) {
               Therapist
             </button>
             <button 
-              className={expertType === 'Psychiatrist' ? 'active' : ''}
-              onClick={() => setExpertType('Psychiatrist')}
+              className={expertType === 'Psychologists' ? 'active' : ''}
+              onClick={() => setExpertType('Psychologists')}
             >
-              Psychiatrist
+              Psychologists
             </button>
             <button 
               className={expertType === 'Child and Youth Expert' ? 'active' : ''}
@@ -85,10 +89,16 @@ function Home({ user, isAuthenticated, onLogout }) {
         </div>
 
         <div className="employees-section">
-          <EmployeeList 
-            employees={filteredEmployees}
-            onBookClick={handleBookClick}
-          />
+          {loading ? (
+            <div style={{ textAlign: 'center', padding: '3rem' }}>
+              <div style={{ fontSize: '1.2rem', color: '#666' }}>Loading therapists...</div>
+            </div>
+          ) : (
+            <EmployeeList 
+              employees={filteredEmployees}
+              onBookClick={handleBookClick}
+            />
+          )}
         </div>
       </main>
 

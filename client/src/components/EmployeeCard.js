@@ -10,7 +10,8 @@ function EmployeeCard({ employee, onBookClick }) {
   // Working hours: 10:00 AM to 6:00 PM
   const workingHours = ['10:00 AM', '11:00 AM', '12:00 PM', '01:00 PM', '02:00 PM', '03:00 PM', '04:00 PM', '05:00 PM'];
   
-  const availableSlots = employee.availableSlots?.filter(
+  // Handle case where availableSlots might not be loaded (for performance)
+  const availableSlots = employee.availableSlots ? employee.availableSlots.filter(
     slot => {
       // Filter by booking type and not booked
       if (slot.type !== bookingType || slot.isBooked) return false;
@@ -30,7 +31,7 @@ function EmployeeCard({ employee, onBookClick }) {
       
       return true;
     }
-  ) || [];
+  ) : [];
 
   const getNextAvailableSlot = () => {
     if (availableSlots.length === 0) return null;
