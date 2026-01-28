@@ -4,6 +4,7 @@ const router = express.Router();
 
 // Get all employees with filters
 router.get('/', async (req, res) => {
+  const startTime = Date.now();
   try {
     const { center, expertise, languages, price, gender } = req.query;
     
@@ -44,6 +45,9 @@ router.get('/', async (req, res) => {
     
     // Set cache headers for better performance
     res.set('Cache-Control', 'public, max-age=300'); // Cache for 5 minutes
+    
+    const duration = Date.now() - startTime;
+    console.log(`✅ GET /employees - ${employees.length} employees in ${duration}ms`);
     
     res.json(employees);
   } catch (error) {

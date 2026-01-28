@@ -17,9 +17,10 @@ if (!process.env.REACT_APP_API_URL && window.location.hostname !== 'localhost') 
 const api = axios.create({
   baseURL: API_BASE_URL,
   headers: {
-    'Content-Type': 'application/json'
+    'Content-Type': 'application/json',
+    'Accept-Encoding': 'gzip, deflate, br' // Enable compression
   },
-  timeout: 30000 // 30 seconds timeout
+  timeout: 15000 // Reduced to 15 seconds (optimized backend should respond faster)
 });
 
 // Add response interceptor for better error handling

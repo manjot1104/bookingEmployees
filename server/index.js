@@ -1,12 +1,16 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
+const compression = require('compression');
 const dotenv = require('dotenv');
 const { createTransporter } = require('./utils/emailService');
 
 dotenv.config();
 
 const app = express();
+
+// Enable compression for all responses (reduces payload size by ~70%)
+app.use(compression());
 
 // Middleware
 // CORS configuration - allow requests from Vercel frontend
@@ -52,9 +56,19 @@ app.use('/api/bookings', require('./routes/bookings'));
 app.use('/api/payments', require('./routes/payments'));
 app.use('/api/admin', require('./routes/admin'));
 
-// Health check
+// Health check - optimized for Render keep-alive
 app.get('/api/health', (req, res) => {
-  res.json({ status: 'OK', message: 'Booking API is running' });
+  res.json({ 
+    status: 'OK', 
+    message: 'Booking API is running',
+    timestamp: new Date().toISOString(),
+    db: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected'
+  });
+});
+
+// Keep-alive endpoint to prevent Render from spinning down (free tier)
+app.get('/api/ping', (req, res) => {
+  res.json({ status: 'pong', timestamp: Date.now() });
 });
 
 // Database connection
@@ -70,14 +84,20 @@ if (MONGODB_URI.includes('mongodb+srv://')) {
   console.log('📍 Using Local MongoDB');
 }
 
+// Optimize MongoDB connection for production
 mongoose.connect(MONGODB_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
-  serverSelectionTimeoutMS: 30000, // 30 seconds
-  socketTimeoutMS: 45000, // 45 seconds
-  connectTimeoutMS: 30000, // 30 seconds
+  serverSelectionTimeoutMS: 10000, // Reduced to 10 seconds
+  socketTimeoutMS: 30000, // 30 seconds
+  connectTimeoutMS: 10000, // Reduced to 10 seconds
+  maxPoolSize: 10, // Maintain up to 10 socket connections
+  minPoolSize: 2, // Maintain at least 2 socket connections
   retryWrites: true,
-  w: 'majority'
+  w: 'majority',
+  // Keep connection alive
+  keepAlive: true,
+  keepAliveInitialDelay: 300000 // 5 minutes
 })
 .then(() => {
   console.log('✅ MongoDB connected successfully');
