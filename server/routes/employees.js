@@ -35,13 +35,15 @@ router.get('/', async (req, res) => {
       }
     }
 
-    // Optimize query: exclude availableSlots completely for list view
-    // Slots are only needed when viewing individual employee profiles
-    // This dramatically reduces payload size (from ~112 slots per employee to 0)
+    // Optimize query: exclude availableSlots and large text fields for list view
+    // Only select essential fields needed for the card display
     const employees = await Employee.find(query)
-      .select('-availableSlots') // Exclude slots entirely for list view
+      .select('-availableSlots -bio -description -faqAnswer -testimonial -affiliations') // Exclude large text fields
       .sort({ createdAt: -1 })
       .lean(); // Use lean() for better performance
+    
+    // Set cache headers for better performance
+    res.set('Cache-Control', 'public, max-age=300'); // Cache for 5 minutes
     
     res.json(employees);
   } catch (error) {

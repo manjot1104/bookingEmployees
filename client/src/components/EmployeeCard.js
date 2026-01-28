@@ -100,6 +100,8 @@ function EmployeeCard({ employee, onBookClick }) {
               src={employee.image} 
               alt={employee.name}
               className="employee-photo"
+              loading="lazy"
+              decoding="async"
               onError={(e) => {
                 // Fallback to placeholder if image fails to load
                 e.target.style.display = 'none';

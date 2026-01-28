@@ -90,8 +90,18 @@ function Home({ user, isAuthenticated, onLogout }) {
 
         <div className="employees-section">
           {loading ? (
-            <div style={{ textAlign: 'center', padding: '3rem' }}>
-              <div style={{ fontSize: '1.2rem', color: '#666' }}>Loading therapists...</div>
+            <div className="skeleton-loading">
+              {[1, 2, 3, 4, 5, 6, 7].map((i) => (
+                <div key={i} className="skeleton-card">
+                  <div className="skeleton-image"></div>
+                  <div className="skeleton-content">
+                    <div className="skeleton-line skeleton-title"></div>
+                    <div className="skeleton-line skeleton-subtitle"></div>
+                    <div className="skeleton-line skeleton-text"></div>
+                    <div className="skeleton-line skeleton-text short"></div>
+                  </div>
+                </div>
+              ))}
             </div>
           ) : (
             <EmployeeList 
