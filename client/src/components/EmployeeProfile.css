@@ -127,6 +127,34 @@
   max-width: 100%;
 }
 
+/* Video Section */
+.profile-video-section {
+  margin-bottom: 2rem;
+  padding-bottom: 2rem;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.video-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 1rem;
+  background: #000;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.therapist-video {
+  width: 100%;
+  max-width: 400px;
+  height: auto;
+  aspect-ratio: 9 / 16; /* Vertical video 9:16 */
+  object-fit: contain;
+  background: #000;
+  display: block;
+}
+
 .read-more {
   color: #ff6b35;
   background: none;
@@ -834,6 +862,14 @@
     width: 100px;
     height: 100px;
     font-size: 2.5rem;
+    max-width: 100%;
+  }
+
+  .video-container {
+    max-width: 100%;
+  }
+
+  .therapist-video {
     max-width: 100%;
   }
 

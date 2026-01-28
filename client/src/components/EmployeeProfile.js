@@ -323,6 +323,28 @@ function EmployeeProfile({ user, isAuthenticated }) {
             </div>
           </div>
 
+          {/* Video Section */}
+          {employee.video && (
+            <div className="profile-video-section">
+              <div className="section-header">
+                <span className="section-icon">🎥</span>
+                <h3>Introduction Video</h3>
+              </div>
+              <div className="video-container">
+                <video
+                  className="therapist-video"
+                  src={employee.video}
+                  controls
+                  playsInline
+                  preload="metadata"
+                  poster={employee.image}
+                >
+                  Your browser does not support the video tag.
+                </video>
+              </div>
+            </div>
+          )}
+
           <div className="profile-bio">
             <p>
               {employee.description || `${employee.name} is a ${employee.title.toLowerCase()} based in ${employee.center || 'our center'}.`}

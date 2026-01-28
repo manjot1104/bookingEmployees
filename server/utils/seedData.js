@@ -21,6 +21,7 @@ const dummyEmployees = [
     testimonial: 'Dr. Sunil\'s extensive experience and practical CBT approach have been instrumental in my recovery from depression. His goal-oriented therapy and ethical practice have helped me develop long-term coping strategies. I feel much more equipped to handle life\'s challenges now.',
     email: 'kumarsunil1002452@gmail.com',
     image: '/therapists/kumarsunil1002452.jpeg',
+    video: '/therapists/sunilkumar.mp4',
     availableSlots: generateSlots('Online', 7)
   },
   {
@@ -43,6 +44,7 @@ const dummyEmployees = [
     testimonial: 'Sessions with Prithvi are going great. They have been really helpful, I have noticed significant progress after meeting them. The structured approach and evidence-based techniques have made a real difference in my mental well-being.',
     email: 'prithvipadam@gmail.com',
     image: '/therapists/prithvipadam.jpeg',
+    video: '/therapists/prithivipadam.mp4',
     availableSlots: generateSlots('Online', 7)
   },
   {
@@ -65,6 +67,7 @@ const dummyEmployees = [
     testimonial: 'Priyanka has been wonderful with my child. Her approach is gentle yet effective, and my child feels comfortable opening up to her. We have seen great improvement in managing anxiety and emotional regulation.',
     email: 'leekha.priyanka@gmail.com',
     image: '/therapists/leekha.priyanka.jpeg',
+    video: '/therapists/priyankalekha.mp4',
     availableSlots: generateSlots('Online', 7)
   },
   {
@@ -87,6 +90,7 @@ const dummyEmployees = [
     testimonial: 'Dr. Vanita has been extremely supportive throughout my therapy journey. Her CBT approach has helped me manage my anxiety and depression effectively. I feel more in control of my emotions now.',
     email: 'vanita734722@gmail.com',
     image: '/therapists/vanita734722.jpeg',
+    video: '/therapists/vanitakumari.mp4',
     availableSlots: generateSlots('Online', 7)
   },
   {
@@ -109,6 +113,7 @@ const dummyEmployees = [
     testimonial: 'Ramandeep has a wonderful ability to make you feel heard and understood. Her non-judgmental approach and practical strategies have helped me work through my self-esteem and relationship issues. I highly recommend her.',
     email: 'lordslove89@gmail.com',
     image: '/therapists/lordslove89.jpeg',
+    video: '/therapists/ramandeepkaur.mp4',
     availableSlots: generateSlots('Online', 7)
   },
   {
@@ -131,6 +136,7 @@ const dummyEmployees = [
     testimonial: 'Dr. Mitali is an exceptional psychologist. Her expertise in working with LGBTQIA+ individuals and trauma has been invaluable. She creates a truly safe space where I feel comfortable being myself. Her integrative approach has helped me make significant progress.',
     email: 'mitalisharma61196@gmail.com',
     image: '/therapists/mitalisharma61196.jpeg',
+    video: '/therapists/mitalisharma.mp4',
     availableSlots: generateSlots('Online', 7)
   },
   {
@@ -153,6 +159,7 @@ const dummyEmployees = [
     testimonial: 'Dr. Ritu\'s holistic approach to therapy has been life-changing. She helped me understand the connection between my emotional state and physical health. Her expertise in family and couple counseling has improved my relationships significantly.',
     email: 'rmudgil7198@gmail.com',
     image: '/therapists/rmudgil7198.jpeg',
+    video: '/therapists/ritu.mp4',
     availableSlots: generateSlots('Online', 7)
   }
 ];

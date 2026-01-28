@@ -15,6 +15,10 @@ const employeeSchema = new mongoose.Schema({
     type: String,
     default: ''
   },
+  video: {
+    type: String,
+    default: ''
+  },
   experience: {
     type: String,
     required: true
