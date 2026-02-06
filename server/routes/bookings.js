@@ -86,24 +86,44 @@ router.post('/', auth, [
     slot.isBooked = true;
     await employee.save();
 
-    // Add booking to user
+    // Add booking to user (use updateOne to avoid validation issues)
+    await User.updateOne(
+      { _id: req.user._id },
+      { $push: { bookings: booking._id } }
+    );
+    
+    // Get user for email sending
     const user = await User.findById(req.user._id);
-    user.bookings.push(booking._id);
-    await user.save();
 
     // Populate employee details
     await booking.populate('employee', 'name title experience price expertise languages');
 
     // Send email notifications (non-blocking)
     try {
-      // Send confirmation email to user
-      await sendBookingConfirmation(booking, user, employee);
+      console.log('📧 Sending booking confirmation emails (Payment Status: Pending)...');
+      console.log('   User:', user.email);
+      console.log('   Admin:', process.env.ADMIN_EMAIL || 'kartikks3367@gmail.com');
+      console.log('   Booking Status:', booking.status);
+      console.log('   Payment Status:', booking.paymentStatus);
+      
+      // Send confirmation email to user (even when payment is pending)
+      const userEmailResult = await sendBookingConfirmation(booking, user, employee);
+      if (userEmailResult.success) {
+        console.log('✅ User confirmation email sent (Payment Pending)');
+      } else {
+        console.error('❌ Failed to send user email:', userEmailResult.error);
+      }
       
       // Send notification to admin
-      await sendAdminNotification(booking, user, employee);
+      const adminEmailResult = await sendAdminNotification(booking, user, employee);
+      if (adminEmailResult.success) {
+        console.log('✅ Admin notification email sent (Payment Pending)');
+      } else {
+        console.error('❌ Failed to send admin email:', adminEmailResult.error);
+      }
     } catch (emailError) {
       // Log error but don't fail the booking creation
-      console.error('Error sending booking emails:', emailError);
+      console.error('❌ Error sending booking emails:', emailError);
     }
 
     res.status(201).json({

@@ -62,13 +62,28 @@ router.get('/:id', async (req, res) => {
     const employee = await Employee.findById(req.params.id);
     
     if (!employee) {
+      console.error(`Employee not found with ID: ${req.params.id}`);
       return res.status(404).json({ message: 'Employee not found' });
     }
 
+    // Check if employee is active (optional - you might want to show inactive employees too)
+    // if (!employee.isActive) {
+    //   return res.status(404).json({ message: 'Employee not found' });
+    // }
+
+    console.log(`✅ Employee found: ${employee.name} (${employee._id})`);
     res.json(employee);
   } catch (error) {
     console.error('Get employee error:', error);
-    res.status(500).json({ message: 'Server error' });
+    console.error('Employee ID:', req.params.id);
+    console.error('Error details:', error.message);
+    
+    // Handle invalid ObjectId format
+    if (error.name === 'CastError') {
+      return res.status(400).json({ message: 'Invalid employee ID format' });
+    }
+    
+    res.status(500).json({ message: 'Server error', error: error.message });
   }
 });
 

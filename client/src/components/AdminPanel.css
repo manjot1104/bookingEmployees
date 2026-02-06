@@ -438,11 +438,64 @@
 }
 
 .slots-list {
-  max-height: 200px;
+  max-height: 500px;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 1.5rem;
+}
+
+.date-group {
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  padding: 1rem;
+  border: 1px solid #e0e0e0;
+}
+
+.date-group-title {
+  margin: 0 0 1rem 0;
+  color: #333;
+  font-size: 1rem;
+  font-weight: 600;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.slot-item-period {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.75rem 1rem;
+  background-color: white;
+  border-radius: 6px;
+  border: 1px solid #e0e0e0;
+  margin-bottom: 0.5rem;
+}
+
+.slot-item-period:last-child {
+  margin-bottom: 0;
+}
+
+.period-info {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex: 1;
+  flex-wrap: wrap;
+}
+
+.period-name {
+  font-weight: 600;
+  color: #333;
+  min-width: 100px;
+  font-size: 0.9rem;
+}
+
+.period-range {
+  color: #666;
+  font-size: 0.85rem;
+  min-width: 150px;
 }
 
 .slot-item {
@@ -472,6 +525,11 @@
 .slot-status.booked {
   background-color: #f8d7da;
   color: #721c24;
+}
+
+.slot-status.partially-booked {
+  background-color: #fff3cd;
+  color: #856404;
 }
 
 .slot-toggle-btn {

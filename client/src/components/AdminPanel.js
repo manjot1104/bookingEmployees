@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { getAdminBookings, getAdminEmployees, getAdminUsers, getAdminDashboard, updateSlotStatus } from '../services/api';
 import './AdminPanel.css';
 
 function AdminPanel({ user, onLogout }) {
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('dashboard');
   const [dashboardData, setDashboardData] = useState(null);
   const [bookings, setBookings] = useState([]);
@@ -77,6 +79,12 @@ function AdminPanel({ user, onLogout }) {
       </div>
 
       <div className="admin-tabs">
+        <button
+          className={activeTab === 'experts' ? 'active' : ''}
+          onClick={() => navigate('/')}
+        >
+          Experts
+        </button>
         <button
           className={activeTab === 'dashboard' ? 'active' : ''}
           onClick={() => setActiveTab('dashboard')}
@@ -285,36 +293,102 @@ function AdminPanel({ user, onLogout }) {
                       <div className="slots-info">
                         <h4>Slots Information</h4>
                         <div className="slots-list">
-                          {employee.availableSlots?.slice(0, 20).map((slot, index) => (
-                            <div key={index} className={`slot-item ${slot.isBooked ? 'booked' : 'available'}`}>
-                              <span>{formatDate(slot.date)}</span>
-                              <span>{slot.time}</span>
-                              <span className={`slot-status ${slot.isBooked ? 'booked' : 'available'}`}>
-                                {slot.isBooked ? 'Booked' : 'Available'}
-                              </span>
-                              <button
-                                className={`slot-toggle-btn ${slot.isBooked ? 'make-available' : 'make-booked'}`}
-                                onClick={async () => {
-                                  try {
-                                    await updateSlotStatus(employee._id, index, !slot.isBooked);
-                                    // Reload employees data
-                                    loadData();
-                                  } catch (error) {
-                                    console.error('Error updating slot:', error);
-                                    alert('Failed to update slot status. Please try again.');
+                          {(() => {
+                            // Group slots by date and then by 3-hour periods
+                            const slotsByDate = {};
+                            
+                            if (employee.availableSlots && employee.availableSlots.length > 0) {
+                              employee.availableSlots.forEach((slot, index) => {
+                                const slotDate = new Date(slot.date);
+                                const dateKey = formatDate(slot.date);
+                                
+                                if (!slotsByDate[dateKey]) {
+                                  slotsByDate[dateKey] = {
+                                    date: slotDate,
+                                    dateStr: dateKey,
+                                    periods: {
+                                      morning: { times: [], indices: [] },
+                                      afternoon: { times: [], indices: [] },
+                                      evening: { times: [], indices: [] }
+                                    }
+                                  };
+                                }
+                                
+                                // Categorize into periods
+                                const time = slot.time;
+                                if (time === '10:00 AM' || time === '11:00 AM' || time === '12:00 PM') {
+                                  slotsByDate[dateKey].periods.morning.times.push(slot);
+                                  slotsByDate[dateKey].periods.morning.indices.push(index);
+                                } else if (time === '01:00 PM' || time === '02:00 PM' || time === '03:00 PM') {
+                                  slotsByDate[dateKey].periods.afternoon.times.push(slot);
+                                  slotsByDate[dateKey].periods.afternoon.indices.push(index);
+                                } else if (time === '04:00 PM' || time === '05:00 PM' || time === '06:00 PM') {
+                                  slotsByDate[dateKey].periods.evening.times.push(slot);
+                                  slotsByDate[dateKey].periods.evening.indices.push(index);
+                                }
+                              });
+                            }
+                            
+                            // Sort dates
+                            const sortedDates = Object.values(slotsByDate).sort((a, b) => 
+                              new Date(a.date) - new Date(b.date)
+                            );
+                            
+                            return sortedDates.slice(0, 10).map((dateGroup, dateIndex) => (
+                              <div key={dateIndex} className="date-group">
+                                <h5 className="date-group-title">{dateGroup.dateStr}</h5>
+                                {['morning', 'afternoon', 'evening'].map((period) => {
+                                  const periodData = dateGroup.periods[period];
+                                  const periodLabels = {
+                                    morning: { name: 'MORNING', range: '10:00 AM - 1:00 PM' },
+                                    afternoon: { name: 'AFTERNOON', range: '1:00 PM - 4:00 PM' },
+                                    evening: { name: 'EVENING', range: '4:00 PM - 7:00 PM' }
+                                  };
+                                  
+                                  // Check if all 3 hours exist and their status
+                                  const allExist = periodData.times.length === 3;
+                                  const allBooked = allExist && periodData.times.every(s => s.isBooked);
+                                  const anyBooked = periodData.times.some(s => s.isBooked);
+                                  
+                                  if (!allExist && periodData.times.length === 0) {
+                                    return null; // Don't show if no slots
                                   }
-                                }}
-                                title={slot.isBooked ? 'Mark as Available' : 'Mark as Booked'}
-                              >
-                                {slot.isBooked ? 'Make Available' : 'Mark Booked'}
-                              </button>
-                            </div>
-                          ))}
-                          {employee.availableSlots?.length > 20 && (
-                            <div className="more-slots">
-                              +{employee.availableSlots.length - 20} more slots
-                            </div>
-                          )}
+                                  
+                                  return (
+                                    <div key={period} className={`slot-item-period ${allBooked ? 'booked' : anyBooked ? 'partially-booked' : 'available'}`}>
+                                      <div className="period-info">
+                                        <span className="period-name">{periodLabels[period].name}</span>
+                                        <span className="period-range">{periodLabels[period].range}</span>
+                                        <span className={`slot-status ${allBooked ? 'booked' : anyBooked ? 'partially-booked' : 'available'}`}>
+                                          {allBooked ? 'Booked' : anyBooked ? 'Partially Booked' : 'Available'}
+                                        </span>
+                                      </div>
+                                      <button
+                                        className={`slot-toggle-btn ${allBooked ? 'make-available' : 'make-booked'}`}
+                                        onClick={async () => {
+                                          try {
+                                            // Toggle all 3 slots in the period
+                                            const newStatus = !allBooked;
+                                            for (const idx of periodData.indices) {
+                                              await updateSlotStatus(employee._id, idx, newStatus);
+                                            }
+                                            // Reload employees data
+                                            loadData();
+                                          } catch (error) {
+                                            console.error('Error updating slots:', error);
+                                            alert('Failed to update slot status. Please try again.');
+                                          }
+                                        }}
+                                        title={allBooked ? 'Mark as Available' : 'Mark as Booked'}
+                                      >
+                                        {allBooked ? 'Make Available' : 'Mark Booked'}
+                                      </button>
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                            ));
+                          })()}
                         </div>
                       </div>
                     </div>

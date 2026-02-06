@@ -112,7 +112,15 @@ const getBookingConfirmationTemplate = (booking, user, employee) => {
             <p><strong>Payment Status:</strong> ${booking.paymentStatus}</p>
 
             ${booking.paymentStatus === 'Pending' ? `
-            <p style="color: #ff6b35; font-weight: bold;">Please complete the payment to confirm your booking.</p>
+            <div style="background-color: #fff3cd; border: 2px solid #ffc107; padding: 15px; border-radius: 6px; margin: 20px 0;">
+              <p style="color: #856404; font-weight: bold; margin: 0;">⚠️ Payment Pending</p>
+              <p style="color: #856404; margin: 10px 0 0 0;">Please complete the payment to confirm your booking. Your slot is reserved temporarily.</p>
+            </div>
+            ` : booking.paymentStatus === 'Paid' ? `
+            <div style="background-color: #d4edda; border: 2px solid #28a745; padding: 15px; border-radius: 6px; margin: 20px 0;">
+              <p style="color: #155724; font-weight: bold; margin: 0;">✅ Payment Confirmed</p>
+              <p style="color: #155724; margin: 10px 0 0 0;">Your booking is confirmed! We look forward to seeing you.</p>
+            </div>
             ` : ''}
 
             <p>If you have any questions or need to reschedule, please contact us.</p>
@@ -280,26 +288,41 @@ const getAdminNotificationTemplate = (booking, user, employee) => {
 // Send email function
 const sendEmail = async (to, subject, html, text) => {
   try {
+    console.log('📧 sendEmail called - To:', to, 'Subject:', subject);
+    
     const transporter = createTransporter();
     
     if (!transporter) {
-      console.warn('⚠️  Email service not configured. Email not sent.');
+      console.error('❌ Email service not configured. SMTP settings missing.');
+      console.error('   Required: SMTP_HOST, SMTP_USER, SMTP_PASS');
+      console.error('   Please add these to your .env file');
       return { success: false, error: 'Email service not configured' };
     }
 
+    // Use SMTP_USER as from email (for Gmail) or FROM_EMAIL if set
+    const fromEmail = process.env.FROM_EMAIL || process.env.SMTP_USER || 'noreply@bookingplatform.com';
+    
     const mailOptions = {
-      from: `"Booking Platform" <${process.env.SMTP_USER}>`,
+      from: `"Booking Platform" <${fromEmail}>`,
       to: to,
       subject: subject,
       html: html,
       text: text
     };
 
+    console.log('📧 Sending email from:', process.env.SMTP_USER, 'to:', to);
+    
     const info = await transporter.sendMail(mailOptions);
-    console.log('✅ Email sent successfully:', info.messageId);
+    console.log('✅ Email sent successfully!');
+    console.log('   Message ID:', info.messageId);
+    console.log('   Response:', info.response);
     return { success: true, messageId: info.messageId };
   } catch (error) {
-    console.error('❌ Error sending email:', error);
+    console.error('❌ Error sending email:', error.message);
+    console.error('   Full error:', error);
+    if (error.response) {
+      console.error('   SMTP Response:', error.response);
+    }
     return { success: false, error: error.message };
   }
 };
@@ -324,7 +347,10 @@ const sendBookingConfirmation = async (booking, user, employee) => {
 // Send admin notification
 const sendAdminNotification = async (booking, user, employee) => {
   try {
-    const adminEmail = process.env.ADMIN_EMAIL || process.env.SMTP_USER;
+    // Default admin email - can be overridden by ADMIN_EMAIL env variable
+    const adminEmail = process.env.ADMIN_EMAIL || 'kartikks3367@gmail.com';
+    
+    console.log('📧 Attempting to send admin notification email to:', adminEmail);
     
     if (!adminEmail) {
       console.warn('⚠️  ADMIN_EMAIL not configured. Admin notification not sent.');
@@ -332,15 +358,25 @@ const sendAdminNotification = async (booking, user, employee) => {
     }
 
     const template = getAdminNotificationTemplate(booking, user, employee);
+    console.log('📧 Email template prepared. Subject:', template.subject);
+    
     const result = await sendEmail(
       adminEmail,
       template.subject,
       template.html,
       template.text
     );
+    
+    if (result.success) {
+      console.log('✅ Admin notification email sent successfully to:', adminEmail);
+    } else {
+      console.error('❌ Failed to send admin notification email:', result.error);
+    }
+    
     return result;
   } catch (error) {
-    console.error('Error sending admin notification email:', error);
+    console.error('❌ Error sending admin notification email:', error);
+    console.error('Error details:', error.stack);
     return { success: false, error: error.message };
   }
 };

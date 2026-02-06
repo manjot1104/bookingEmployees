@@ -7,6 +7,8 @@ import './EmployeeProfile.css';
 function EmployeeProfile({ user, isAuthenticated }) {
   const { id } = useParams();
   const navigate = useNavigate();
+  
+  console.log('EmployeeProfile - ID from URL:', id);
   const [employee, setEmployee] = useState(null);
   const [loading, setLoading] = useState(true);
   const [sessionType, setSessionType] = useState('Online');
@@ -16,14 +18,39 @@ function EmployeeProfile({ user, isAuthenticated }) {
   const [showFullBio, setShowFullBio] = useState(false);
 
   const loadEmployee = useCallback(async () => {
+    setLoading(true);
     try {
+      if (!id) {
+        console.error('No employee ID provided');
+        setLoading(false);
+        return;
+      }
+      
+      console.log('Loading employee with ID:', id);
       const data = await getEmployee(id);
+      
+      if (!data) {
+        console.error('Employee data is null or undefined');
+        setEmployee(null);
+        setLoading(false);
+        return;
+      }
+      
       console.log('Employee data loaded:', data);
       console.log('Available slots:', data.availableSlots);
       setEmployee(data);
       setLoading(false);
     } catch (error) {
       console.error('Error loading employee:', error);
+      console.error('Error response:', error.response?.data);
+      console.error('Error status:', error.response?.status);
+      
+      // If 404, employee doesn't exist
+      if (error.response?.status === 404) {
+        console.error('Employee not found in database');
+      }
+      
+      setEmployee(null);
       setLoading(false);
     }
   }, [id]);

@@ -7,6 +7,7 @@ import { getEmployees } from '../services/api';
 
 function Home({ user, isAuthenticated, onLogout }) {
   const navigate = useNavigate();
+  const [allEmployees, setAllEmployees] = useState([]);
   const [filteredEmployees, setFilteredEmployees] = useState([]);
   const [selectedEmployee, setSelectedEmployee] = useState(null);
   const [showBookingModal, setShowBookingModal] = useState(false);
@@ -17,7 +18,7 @@ function Home({ user, isAuthenticated, onLogout }) {
     setLoading(true);
     try {
       const data = await getEmployees();
-      setFilteredEmployees(data);
+      setAllEmployees(data);
     } catch (error) {
       console.error('Error loading employees:', error);
     } finally {
@@ -28,6 +29,38 @@ function Home({ user, isAuthenticated, onLogout }) {
   useEffect(() => {
     loadEmployees();
   }, [loadEmployees]);
+
+  // Filter employees based on expertType
+  useEffect(() => {
+    if (allEmployees.length === 0) {
+      setFilteredEmployees([]);
+      return;
+    }
+    
+    // Map expert types to title keywords
+    const expertTypeMap = {
+      'Therapist': ['Therapist'],
+      'Psychologists': ['Psychologist'],
+      'Child and Youth Expert': ['Child and Youth Psychiatrist'],
+      'Couples Therapist': ['Couples Therapist', 'Couples']
+    };
+    
+    const keywords = expertTypeMap[expertType] || [];
+    
+    const filtered = allEmployees.filter(employee => {
+      if (!employee.title) return false;
+      
+      // Check if employee title matches any keyword
+      return keywords.some(keyword => 
+        employee.title.toLowerCase().includes(keyword.toLowerCase())
+      );
+    });
+    
+    console.log(`Filtered ${filtered.length} employees for expert type: ${expertType}`);
+    console.log('Keywords:', keywords);
+    console.log('Filtered employees:', filtered.map(e => e.name + ' - ' + e.title));
+    setFilteredEmployees(filtered);
+  }, [expertType, allEmployees]);
 
   const handleBookClick = (employee) => {
     if (!isAuthenticated) {
