@@ -58,17 +58,6 @@ function AppContent() {
             <header className="app-header">
               <div className="header-content">
                 <nav className="main-nav centered">
-                  <NavLink 
-                    to="/" 
-                    className={({ isActive }) => {
-                      // Always active when not authenticated, or when on home page
-                      if (!isAuthenticated) return 'active';
-                      return isActive ? 'active' : '';
-                    }}
-                    end
-                  >
-                    Experts
-                  </NavLink>
                   {isAuthenticated && (
                     <>
                       <NavLink 

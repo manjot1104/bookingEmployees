@@ -8,7 +8,7 @@ function EmployeeCard({ employee, onBookClick }) {
   const [bookingType, setBookingType] = useState('Online');
 
   // Working hours: 10:00 AM to 6:00 PM
-  const workingHours = ['10:00 AM', '11:00 AM', '12:00 PM', '01:00 PM', '02:00 PM', '03:00 PM', '04:00 PM', '05:00 PM'];
+  const workingHours = ['10:00 AM', '11:00 AM', '12:00 PM', '01:00 PM', '02:00 PM', '03:00 PM', '04:00 PM', '05:00 PM', '06:00 PM'];
   
   // Handle case where availableSlots might not be loaded (for performance)
   const availableSlots = employee.availableSlots ? employee.availableSlots.filter(

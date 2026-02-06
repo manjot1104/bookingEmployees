@@ -49,7 +49,7 @@ function BookingModal({ employee, onClose, onBookingSuccess, isAuthenticated, us
       if (slotDate.getDay() === 0) return false;
       
       // Filter by working hours
-      const workingHours = ['10:00 AM', '11:00 AM', '12:00 PM', '01:00 PM', '02:00 PM', '03:00 PM', '04:00 PM', '05:00 PM'];
+      const workingHours = ['10:00 AM', '11:00 AM', '12:00 PM', '01:00 PM', '02:00 PM', '03:00 PM', '04:00 PM', '05:00 PM', '06:00 PM'];
       if (!workingHours.includes(slot.time)) return false;
       
       // If it's today, exclude past times
@@ -79,7 +79,7 @@ function BookingModal({ employee, onClose, onBookingSuccess, isAuthenticated, us
   };
 
   const getAvailableTimes = (date) => {
-    const workingHours = ['10:00 AM', '11:00 AM', '12:00 PM', '01:00 PM', '02:00 PM', '03:00 PM', '04:00 PM', '05:00 PM'];
+    const workingHours = ['10:00 AM', '11:00 AM', '12:00 PM', '01:00 PM', '02:00 PM', '03:00 PM', '04:00 PM', '05:00 PM', '06:00 PM'];
     
     return availableSlots
       .filter(slot => {

@@ -79,7 +79,7 @@ function EmployeeProfile({ user, isAuthenticated }) {
       }
       
       // Filter only working hours (10:00 AM to 6:00 PM)
-      const workingHours = ['10:00 AM', '11:00 AM', '12:00 PM', '01:00 PM', '02:00 PM', '03:00 PM', '04:00 PM', '05:00 PM'];
+      const workingHours = ['10:00 AM', '11:00 AM', '12:00 PM', '01:00 PM', '02:00 PM', '03:00 PM', '04:00 PM', '05:00 PM', '06:00 PM'];
       if (!workingHours.includes(slot.time)) {
         return false;
       }
@@ -141,7 +141,7 @@ function EmployeeProfile({ user, isAuthenticated }) {
     const slotType = sessionType === 'Video' ? 'Online' : sessionType;
     
     // Working hours: 10:00 AM to 6:00 PM
-    const workingHours = ['10:00 AM', '11:00 AM', '12:00 PM', '01:00 PM', '02:00 PM', '03:00 PM', '04:00 PM', '05:00 PM'];
+    const workingHours = ['10:00 AM', '11:00 AM', '12:00 PM', '01:00 PM', '02:00 PM', '03:00 PM', '04:00 PM', '05:00 PM', '06:00 PM'];
     
     // Get all slots for this date and type
     const slotsForDate = employee.availableSlots.filter(slot => {
@@ -160,17 +160,60 @@ function EmployeeProfile({ user, isAuthenticated }) {
       return slotDateStr === targetDateStr && slot.type === slotType;
     });
     
-    // Create a map of all working hours with their booking status
-    const timeSlots = workingHours.map(time => {
-      const slot = slotsForDate.find(s => s.time === time);
+    // Define 3-hour slot periods
+    const slotPeriods = [
+      {
+        name: 'MORNING',
+        label: '10:00 AM - 1:00 PM',
+        times: ['10:00 AM', '11:00 AM', '12:00 PM'],
+        startTime: '10:00 AM'
+      },
+      {
+        name: 'AFTERNOON',
+        label: '1:00 PM - 4:00 PM',
+        times: ['01:00 PM', '02:00 PM', '03:00 PM'],
+        startTime: '01:00 PM'
+      },
+      {
+        name: 'EVENING',
+        label: '4:00 PM - 7:00 PM',
+        times: ['04:00 PM', '05:00 PM', '06:00 PM'],
+        startTime: '04:00 PM'
+      }
+    ];
+    
+    // Check each period - slot is available only if ALL 3 hours in that period are available
+    const timeSlots = slotPeriods.map(period => {
       const isSlotToday = isToday(new Date(date));
-      const isPastTime = isSlotToday && isTimePassedToday(time);
+      
+      // Check all times in this period
+      const periodSlots = period.times.map(time => {
+        const slot = slotsForDate.find(s => s.time === time);
+        const isPastTime = isSlotToday && isTimePassedToday(time);
+        
+        return {
+          time,
+          isBooked: slot ? slot.isBooked : false,
+          isPast: isPastTime,
+          isAvailable: slot && !slot.isBooked && !isPastTime,
+          exists: !!slot
+        };
+      });
+      
+      // Period is available only if ALL 3 hours are available (not booked, not past, and exist)
+      const allAvailable = periodSlots.every(s => s.isAvailable && s.exists);
+      const anyBooked = periodSlots.some(s => s.isBooked);
+      const anyPast = periodSlots.some(s => s.isPast);
+      const allExist = periodSlots.every(s => s.exists);
       
       return {
-        time,
-        isBooked: slot ? slot.isBooked : false,
-        isPast: isPastTime,
-        isAvailable: slot && !slot.isBooked && !isPastTime
+        time: period.startTime,
+        label: period.label,
+        period: period.name,
+        isBooked: anyBooked,
+        isPast: anyPast,
+        isAvailable: allAvailable && allExist,
+        periodSlots: periodSlots
       };
     });
     
@@ -514,96 +557,30 @@ function EmployeeProfile({ user, isAuthenticated }) {
 
                   {selectedDate && (
                     <div className="time-slots">
-                      {(() => {
-                        const morning = times.filter(t => t.time && t.time.includes('AM'));
-                        const afternoon = times.filter(t => {
-                          if (!t.time || !t.time.includes('PM')) return false;
-                          const hour = parseInt(t.time.split(':')[0]);
-                          // 12:00 PM, 01:00 PM, 02:00 PM, 03:00 PM
-                          return hour === 12 || (hour >= 1 && hour <= 3);
-                        });
-                        const evening = times.filter(t => {
-                          if (!t.time || !t.time.includes('PM')) return false;
-                          const hour = parseInt(t.time.split(':')[0]);
-                          // 04:00 PM, 05:00 PM
-                          return hour >= 4 && hour <= 5;
-                        });
-                        
-                        return (
-                          <>
-                            {morning.length > 0 && (
-                              <div className="time-group">
-                                <h4>MORNING</h4>
-                                <div className="time-buttons">
-                                  {morning.map((timeSlot, index) => (
-                                    <button
-                                      key={index}
-                                      className={`time-button ${selectedTime === timeSlot.time ? 'selected' : ''} ${timeSlot.isBooked ? 'booked' : ''} ${timeSlot.isPast ? 'past' : ''}`}
-                                      onClick={() => {
-                                        if (!timeSlot.isBooked && !timeSlot.isPast) {
-                                          setSelectedTime(timeSlot.time);
-                                        }
-                                      }}
-                                      disabled={timeSlot.isBooked || timeSlot.isPast}
-                                      title={timeSlot.isBooked ? 'This slot is already booked' : timeSlot.isPast ? 'This time has passed' : ''}
-                                    >
-                                      {timeSlot.time}
-                                      {timeSlot.isBooked && <span className="booked-badge">Booked</span>}
-                                    </button>
-                                  ))}
-                                </div>
+                      {times.length > 0 ? (
+                        <>
+                          {times.map((timeSlot, index) => (
+                            <div key={index} className="time-group">
+                              <h4>{timeSlot.period}</h4>
+                              <div className="time-buttons">
+                                <button
+                                  className={`time-button ${selectedTime === timeSlot.time ? 'selected' : ''} ${timeSlot.isBooked ? 'booked' : ''} ${timeSlot.isPast ? 'past' : ''} ${!timeSlot.isAvailable ? 'unavailable' : ''}`}
+                                  onClick={() => {
+                                    if (timeSlot.isAvailable) {
+                                      setSelectedTime(timeSlot.time);
+                                    }
+                                  }}
+                                  disabled={!timeSlot.isAvailable}
+                                  title={timeSlot.isBooked ? 'This slot is already booked' : timeSlot.isPast ? 'This time has passed' : !timeSlot.isAvailable ? 'Not all hours available in this period' : timeSlot.label}
+                                >
+                                  {timeSlot.label}
+                                  {timeSlot.isBooked && <span className="booked-badge">Booked</span>}
+                                </button>
                               </div>
-                            )}
-                            {afternoon.length > 0 && (
-                              <div className="time-group">
-                                <h4>AFTERNOON</h4>
-                                <div className="time-buttons">
-                                  {afternoon.map((timeSlot, index) => (
-                                    <button
-                                      key={index}
-                                      className={`time-button ${selectedTime === timeSlot.time ? 'selected' : ''} ${timeSlot.isBooked ? 'booked' : ''} ${timeSlot.isPast ? 'past' : ''}`}
-                                      onClick={() => {
-                                        if (!timeSlot.isBooked && !timeSlot.isPast) {
-                                          setSelectedTime(timeSlot.time);
-                                        }
-                                      }}
-                                      disabled={timeSlot.isBooked || timeSlot.isPast}
-                                      title={timeSlot.isBooked ? 'This slot is already booked' : timeSlot.isPast ? 'This time has passed' : ''}
-                                    >
-                                      {timeSlot.time}
-                                      {timeSlot.isBooked && <span className="booked-badge">Booked</span>}
-                                    </button>
-                                  ))}
-                                </div>
-                              </div>
-                            )}
-                            {evening.length > 0 && (
-                              <div className="time-group">
-                                <h4>EVENING</h4>
-                                <div className="time-buttons">
-                                  {evening.map((timeSlot, index) => (
-                                    <button
-                                      key={index}
-                                      className={`time-button ${selectedTime === timeSlot.time ? 'selected' : ''} ${timeSlot.isBooked ? 'booked' : ''} ${timeSlot.isPast ? 'past' : ''}`}
-                                      onClick={() => {
-                                        if (!timeSlot.isBooked && !timeSlot.isPast) {
-                                          setSelectedTime(timeSlot.time);
-                                        }
-                                      }}
-                                      disabled={timeSlot.isBooked || timeSlot.isPast}
-                                      title={timeSlot.isBooked ? 'This slot is already booked' : timeSlot.isPast ? 'This time has passed' : ''}
-                                    >
-                                      {timeSlot.time}
-                                      {timeSlot.isBooked && <span className="booked-badge">Booked</span>}
-                                    </button>
-                                  ))}
-                                </div>
-                              </div>
-                            )}
-                          </>
-                        );
-                      })()}
-                      {times.length === 0 && (
+                            </div>
+                          ))}
+                        </>
+                      ) : (
                         <div className="no-slots">
                           <p>No time slots available for this date</p>
                         </div>

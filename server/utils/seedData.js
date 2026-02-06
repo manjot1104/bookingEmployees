@@ -167,10 +167,10 @@ const dummyEmployees = [
 function generateSlots(type, days) {
   const slots = [];
   // Working hours: 10:00 AM to 6:00 PM (18:00)
-  // Generate slots every hour from 10:00 AM to 5:00 PM (last slot at 5:00 PM for 1-hour sessions)
+  // Generate slots every hour from 10:00 AM to 6:00 PM
   const workingTimes = [
     '10:00 AM', '11:00 AM', 
-    '12:00 PM', '01:00 PM', '02:00 PM', '03:00 PM', '04:00 PM', '05:00 PM'
+    '12:00 PM', '01:00 PM', '02:00 PM', '03:00 PM', '04:00 PM', '05:00 PM', '06:00 PM'
   ];
   
   let daysGenerated = 0;
