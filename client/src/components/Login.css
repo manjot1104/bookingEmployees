@@ -123,6 +123,63 @@
   cursor: not-allowed;
 }
 
+.terms-group {
+  margin-top: 1rem;
+}
+
+.terms-content {
+  max-height: 300px;
+  overflow-y: auto;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  background-color: #f9f9f9;
+}
+
+.terms-content h4 {
+  margin: 0 0 1rem 0;
+  color: #333;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.terms-text {
+  font-size: 0.85rem;
+  line-height: 1.6;
+  color: #555;
+}
+
+.terms-text p {
+  margin: 0.75rem 0;
+}
+
+.terms-text strong {
+  color: #333;
+  font-weight: 600;
+}
+
+.terms-checkbox {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  cursor: pointer;
+  font-size: 0.9rem;
+  color: #333;
+}
+
+.terms-checkbox input[type="checkbox"] {
+  margin-top: 0.2rem;
+  cursor: pointer;
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
+.terms-checkbox span {
+  line-height: 1.5;
+}
+
 @media (max-width: 768px) {
   .login-container {
     padding: 1rem;
@@ -130,6 +187,20 @@
 
   .login-box {
     padding: 2rem 1.5rem;
+    max-width: 500px;
+  }
+  
+  .terms-content {
+    max-height: 250px;
+    padding: 0.875rem;
+  }
+  
+  .terms-content h4 {
+    font-size: 1rem;
+  }
+  
+  .terms-text {
+    font-size: 0.8rem;
   }
 
   .login-header h1 {
@@ -182,6 +253,24 @@
 
   .login-box {
     padding: 1.5rem 1rem;
+    max-width: 100%;
+  }
+  
+  .terms-content {
+    max-height: 200px;
+    padding: 0.75rem;
+  }
+  
+  .terms-content h4 {
+    font-size: 0.95rem;
+  }
+  
+  .terms-text {
+    font-size: 0.75rem;
+  }
+  
+  .terms-checkbox {
+    font-size: 0.85rem;
   }
 
   .login-header h1 {

@@ -25,10 +25,12 @@ const userSchema = new mongoose.Schema({
     trim: true
   },
   dateOfBirth: {
-    type: Date
+    type: Date,
+    required: true
   },
   address: {
     type: String,
+    required: true,
     trim: true
   },
   bookings: [{

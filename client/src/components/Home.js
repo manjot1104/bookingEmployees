@@ -11,7 +11,7 @@ function Home({ user, isAuthenticated, onLogout }) {
   const [filteredEmployees, setFilteredEmployees] = useState([]);
   const [selectedEmployee, setSelectedEmployee] = useState(null);
   const [showBookingModal, setShowBookingModal] = useState(false);
-  const [expertType, setExpertType] = useState('Psychologists');
+  const [expertType, setExpertType] = useState('Psychiatrist');
   const [loading, setLoading] = useState(true);
 
   const loadEmployees = useCallback(async () => {
@@ -40,7 +40,6 @@ function Home({ user, isAuthenticated, onLogout }) {
     // Map expert types to employee name patterns
     const expertTypeMap = {
       'Psychiatrist': ['Priyanka'],
-      'Psychologists': ['Psychologist'],
       'Child and Youth Expert': ['Mitali', 'Prithvi', 'Priyanka', 'Ramandeep'],
       'Couples Therapist': ['Sunil', 'Ritu', 'Mitali', 'Vanita'],
       'Career Counseling': ['Mitali', 'Priyanka', 'Ramandeep']
@@ -51,12 +50,7 @@ function Home({ user, isAuthenticated, onLogout }) {
     const filtered = allEmployees.filter(employee => {
       if (!employee.name) return false;
       
-      // For Psychologists, check title (backward compatibility)
-      if (expertType === 'Psychologists') {
-        return employee.title && employee.title.toLowerCase().includes('psychologist');
-      }
-      
-      // For other categories, check if employee name matches any pattern
+      // Check if employee name matches any pattern
       return namePatterns.some(pattern => 
         employee.name.toLowerCase().includes(pattern.toLowerCase())
       );
@@ -105,12 +99,6 @@ function Home({ user, isAuthenticated, onLogout }) {
               onClick={() => setExpertType('Psychiatrist')}
             >
               Psychiatrist
-            </button>
-            <button 
-              className={expertType === 'Psychologists' ? 'active' : ''}
-              onClick={() => setExpertType('Psychologists')}
-            >
-              Psychologists
             </button>
             <button 
               className={expertType === 'Child and Youth Expert' ? 'active' : ''}
