@@ -4,6 +4,9 @@ import { getEmployee } from '../services/api';
 import { getCurrentISTDate, isDatePast, isToday, isTimePassedToday, formatISTDateString } from '../utils/dateUtils';
 import './EmployeeProfile.css';
 
+// Working hours constant (10:00 AM to 6:00 PM)
+const WORKING_HOURS = ['10:00 AM', '11:00 AM', '12:00 PM', '01:00 PM', '02:00 PM', '03:00 PM', '04:00 PM', '05:00 PM', '06:00 PM'];
+
 function EmployeeProfile({ user, isAuthenticated }) {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -106,8 +109,7 @@ function EmployeeProfile({ user, isAuthenticated }) {
       }
       
       // Filter only working hours (10:00 AM to 6:00 PM)
-      const workingHours = ['10:00 AM', '11:00 AM', '12:00 PM', '01:00 PM', '02:00 PM', '03:00 PM', '04:00 PM', '05:00 PM', '06:00 PM'];
-      if (!workingHours.includes(slot.time)) {
+      if (!WORKING_HOURS.includes(slot.time)) {
         return false;
       }
       
@@ -166,9 +168,6 @@ function EmployeeProfile({ user, isAuthenticated }) {
     
     // Map "Video" to "Online" for compatibility
     const slotType = sessionType === 'Video' ? 'Online' : sessionType;
-    
-    // Working hours: 10:00 AM to 6:00 PM
-    const workingHours = ['10:00 AM', '11:00 AM', '12:00 PM', '01:00 PM', '02:00 PM', '03:00 PM', '04:00 PM', '05:00 PM', '06:00 PM'];
     
     // Get all slots for this date and type
     const slotsForDate = employee.availableSlots.filter(slot => {

@@ -37,27 +37,33 @@ function Home({ user, isAuthenticated, onLogout }) {
       return;
     }
     
-    // Map expert types to title keywords
+    // Map expert types to employee name patterns
     const expertTypeMap = {
-      'Therapist': ['Therapist'],
+      'Psychiatrist': ['Priyanka'],
       'Psychologists': ['Psychologist'],
-      'Child and Youth Expert': ['Child and Youth Psychiatrist'],
-      'Couples Therapist': ['Couples Therapist', 'Couples']
+      'Child and Youth Expert': ['Mitali', 'Prithvi', 'Priyanka', 'Ramandeep'],
+      'Couples Therapist': ['Sunil', 'Ritu', 'Mitali', 'Vanita'],
+      'Career Counseling': ['Mitali', 'Priyanka', 'Ramandeep']
     };
     
-    const keywords = expertTypeMap[expertType] || [];
+    const namePatterns = expertTypeMap[expertType] || [];
     
     const filtered = allEmployees.filter(employee => {
-      if (!employee.title) return false;
+      if (!employee.name) return false;
       
-      // Check if employee title matches any keyword
-      return keywords.some(keyword => 
-        employee.title.toLowerCase().includes(keyword.toLowerCase())
+      // For Psychologists, check title (backward compatibility)
+      if (expertType === 'Psychologists') {
+        return employee.title && employee.title.toLowerCase().includes('psychologist');
+      }
+      
+      // For other categories, check if employee name matches any pattern
+      return namePatterns.some(pattern => 
+        employee.name.toLowerCase().includes(pattern.toLowerCase())
       );
     });
     
     console.log(`Filtered ${filtered.length} employees for expert type: ${expertType}`);
-    console.log('Keywords:', keywords);
+    console.log('Name patterns:', namePatterns);
     console.log('Filtered employees:', filtered.map(e => e.name + ' - ' + e.title));
     setFilteredEmployees(filtered);
   }, [expertType, allEmployees]);
@@ -95,10 +101,10 @@ function Home({ user, isAuthenticated, onLogout }) {
           
           <div className="expert-type-selector">
             <button 
-              className={expertType === 'Therapist' ? 'active' : ''}
-              onClick={() => setExpertType('Therapist')}
+              className={expertType === 'Psychiatrist' ? 'active' : ''}
+              onClick={() => setExpertType('Psychiatrist')}
             >
-              Therapist
+              Psychiatrist
             </button>
             <button 
               className={expertType === 'Psychologists' ? 'active' : ''}
@@ -117,6 +123,12 @@ function Home({ user, isAuthenticated, onLogout }) {
               onClick={() => setExpertType('Couples Therapist')}
             >
               Couples Therapist
+            </button>
+            <button 
+              className={expertType === 'Career Counseling' ? 'active' : ''}
+              onClick={() => setExpertType('Career Counseling')}
+            >
+              Career Counseling
             </button>
           </div>
         </div>
