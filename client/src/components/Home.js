@@ -39,10 +39,10 @@ function Home({ user, isAuthenticated, onLogout }) {
     
     // Map expert types to employee name patterns
     const expertTypeMap = {
-      'Psychiatrist': ['Priyanka'],
-      'Child and Youth Expert': ['Mitali', 'Prithvi', 'Priyanka', 'Ramandeep'],
+      'Psychiatrist': ['Priyanka Kalra', 'Kalra'],
+      'Child and Youth Expert': ['Mitali', 'Prithvi', 'Priyanka Leekha', 'Ramandeep'],
       'Couples Therapist': ['Sunil', 'Ritu', 'Mitali', 'Vanita'],
-      'Career Counseling': ['Mitali', 'Priyanka', 'Ramandeep']
+      'Career Counseling': ['Mitali', 'Priyanka Leekha', 'Ramandeep']
     };
     
     const namePatterns = expertTypeMap[expertType] || [];

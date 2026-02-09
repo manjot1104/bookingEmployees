@@ -4,7 +4,7 @@ const dummyEmployees = [
   {
     name: 'Dr Sunil Kumar',
     title: 'Psychologist & CBT Therapist',
-    experience: '10+ years',
+    experience: '28 years',
     price: {
       amount: 1100,
       duration: 45,
@@ -14,8 +14,8 @@ const dummyEmployees = [
     languages: ['English', 'Hindi'],
     gender: 'Male',
     center: 'Ludhiana',
-    description: 'Qualified Psychologist and CBT Therapist with 10+ years of experience, passionate about helping individuals improve their mental and emotional well-being.',
-    bio: 'I am Dr. Sunil, a qualified Psychologist and CBT Therapist, passionate about helping individuals improve their mental and emotional well-being. I chose the field of therapy to support people in understanding their thoughts, emotions, and behaviors, and to guide them toward healthier coping strategies. I believe in creating a safe, empathetic, and non-judgmental space for every client. With experience in psychological assessment, counseling, and evidence-based CBT interventions, I work with concerns such as stress, anxiety, depression, emotional regulation, and behavioral challenges. My approach is client-centered, ethical, and goal-oriented, focusing on practical solutions and long-term positive change.',
+    description: 'Qualified Psychologist and CBT Therapist with 28 years of experience, passionate about helping individuals improve their mental and emotional well-being.',
+    bio: 'I am Dr. Sunil, a qualified Psychologist and CBT Therapist, passionate about helping individuals improve their mental and emotional well-being. I chose the field of therapy to support people in understanding their thoughts, emotions, and behaviors, and to guide them toward healthier coping strategies. I believe in creating a safe, empathetic, and non-judgmental space for every client. With 28 years of experience in psychological assessment, counseling, and evidence-based CBT interventions, I work with concerns such as stress, anxiety, depression, emotional regulation, and behavioral challenges. My approach is client-centered, ethical, and goal-oriented, focusing on practical solutions and long-term positive change.',
     qualifications: 'M.A Psychology & CBT Practitioner',
     faqAnswer: 'I chose the field of therapy to support people in understanding their thoughts, emotions, and behaviors, and to guide them toward healthier coping strategies. I believe in creating a safe, empathetic, and non-judgmental space for every client.',
     testimonial: 'Dr. Sunil\'s extensive experience and practical CBT approach have been instrumental in my recovery from depression. His goal-oriented therapy and ethical practice have helped me develop long-term coping strategies. I feel much more equipped to handle life\'s challenges now.',
@@ -73,7 +73,7 @@ const dummyEmployees = [
   {
     name: 'Dr. Vanita Kumari',
     title: 'Psychologist',
-    experience: '2.5+ years of experience',
+    experience: '8 years',
     price: {
       amount: 1100,
       duration: 45,
@@ -84,7 +84,7 @@ const dummyEmployees = [
     gender: 'Female',
     center: 'Ludhiana',
     description: 'Certified CBT Practitioner with expertise in Anxiety Disorders, Depression, Anger Management, and Relationship Issues.',
-    bio: 'I hold a BHMS degree and M.Sc. in Psychology, and I am a Certified CBT Practitioner. With 2.5 years of clinical experience, I work with Anxiety Disorders, Depression & Mood Issues, Anger Management, Relationship & Marital Issues, Low Self-Esteem, and Behavioral Issues in children, adolescents, and young adults. My therapeutic approaches include Cognitive Behavioral Therapy (CBT), Dialectical Behavior Therapy (DBT), Acceptance & Commitment Therapy (ACT), and Solution-Focused Brief Therapy (SFBT).',
+    bio: 'I hold a BHMS degree and M.Sc. in Psychology, and I am a Certified CBT Practitioner. With 8 years of clinical experience, I work with Anxiety Disorders, Depression & Mood Issues, Anger Management, Relationship & Marital Issues, Low Self-Esteem, and Behavioral Issues in children, adolescents, and young adults. My therapeutic approaches include Cognitive Behavioral Therapy (CBT), Dialectical Behavior Therapy (DBT), Acceptance & Commitment Therapy (ACT), and Solution-Focused Brief Therapy (SFBT).',
     qualifications: 'M.Sc. Psychology, Certified CBT Practitioner, BHMS',
     faqAnswer: 'I want to become a therapist because I genuinely want to help people understand themselves better. Many individuals struggle silently with emotions, stress, or emotional pain and often they simply need someone who listens without judgement. I believe that therapy can provide people with clarity, emotional strength and healthier ways to cope with life\'s challenges. Being a therapist allows me to support others in their healing journey and help them feel understood, valued and empowered.',
     testimonial: 'Dr. Vanita has been extremely supportive throughout my therapy journey. Her CBT approach has helped me manage my anxiety and depression effectively. I feel more in control of my emotions now.',
@@ -119,7 +119,7 @@ const dummyEmployees = [
   {
     name: 'Dr. Mitali Sharma',
     title: 'Clinical Psychologist',
-    experience: '3+ years of experience',
+    experience: '7 years',
     price: {
       amount: 1200,
       duration: 45,
@@ -130,7 +130,7 @@ const dummyEmployees = [
     gender: 'Female',
     center: 'Ludhiana',
     description: 'RCI-licensed Clinical Psychologist with Ph.D. in Clinical Psychology, specializing in evidence-based interventions for children, adolescents, and adults.',
-    bio: 'I hold a Ph.D. in Clinical Psychology and a Master\'s degree in Clinical Psychology. I am an RCI-licensed, certified counselor and have also completed a Diploma in Guidance and Counseling. With over 3 years of experience in therapeutic settings, I have worked closely with children, adolescents, and adults, offering evidence-based psychological interventions and emotional support across diverse mental health concerns, as well as career counseling for adolescents and young adults.',
+    bio: 'I hold a Ph.D. in Clinical Psychology and a Master\'s degree in Clinical Psychology. I am an RCI-licensed, certified counselor and have also completed a Diploma in Guidance and Counseling. With 7 years of experience in therapeutic settings, I have worked closely with children, adolescents, and adults, offering evidence-based psychological interventions and emotional support across diverse mental health concerns, as well as career counseling for adolescents and young adults.',
     qualifications: 'Ph.D. in Clinical Psychology, Master\'s in Clinical Psychology, RCI-licensed, Diploma in Guidance and Counseling',
     faqAnswer: 'I chose psychology because I have always been deeply interested in understanding human emotions, behavior, and the silent struggles people carry within them. Over time, this interest grew into a purpose—to create a safe, non-judgmental space where individuals feel heard, understood, and supported. Becoming a psychologist allows me to walk alongside people during their most vulnerable moments and help them develop insight, resilience, and meaningful change. For me, psychology is not just a profession; it is a commitment to empathy, healing, and growth.',
     testimonial: 'Dr. Mitali is an exceptional psychologist. Her expertise in working with LGBTQIA+ individuals and trauma has been invaluable. She creates a truly safe space where I feel comfortable being myself. Her integrative approach has helped me make significant progress.',
@@ -142,7 +142,7 @@ const dummyEmployees = [
   {
     name: 'Dr. Ritu',
     title: 'Psychologist',
-    experience: '5+ years of experience',
+    experience: '24 years (Work experience), 3 years (As a Psychologist)',
     price: {
       amount: 1200,
       duration: 45,
@@ -152,14 +152,37 @@ const dummyEmployees = [
     languages: ['English', 'Hindi', 'Punjabi'],
     gender: 'Female',
     center: 'Ludhiana',
-    description: 'Psychologist with 5 years of experience specializing in anxiety, depression, OCD, person centered counseling, family counseling and couple counseling.',
-    bio: 'I am a Psychologist with qualifications in BHMS, CBT Practitioner certification, and M.A. in Psychology. With 5 years of experience, I work with all sorts of psychological disorders like anxiety, depression, OCD, person centered counseling, family counseling and couple counseling. I have chosen to be a Psychologist based on my clinical experiences where I saw that emotions are baseline of human behavior and both progress and regression depends upon our sensitivity and emotional level.',
+    description: 'Psychologist with 24 years of work experience and 3 years as a Psychologist, specializing in anxiety, depression, OCD, person centered counseling, family counseling and couple counseling.',
+    bio: 'I am a Psychologist with qualifications in BHMS, CBT Practitioner certification, and M.A. in Psychology. With 24 years of overall work experience and 3 years of experience as a Psychologist, I work with all sorts of psychological disorders like anxiety, depression, OCD, person centered counseling, family counseling and couple counseling. I have chosen to be a Psychologist based on my clinical experiences where I saw that emotions are baseline of human behavior and both progress and regression depends upon our sensitivity and emotional level.',
     qualifications: 'CBT Practitioner, M.A. (Psychology), BHMS',
     faqAnswer: 'I have chosen to be a Psychologist on my clinical experiences. Emotions are baseline of human behavior. Both progress and regression depends upon our sensitivity and emotional level. In my clinical practise I have seen diseases not getting cured because of stress and doctors used to say there is some sort of stress lying because of which medicine are not responding. Then I have taken decision why not choose a profession which helps patient to strengthen their sensitivity and curing disease. While adopting this profession I found wonderful result not only at psychology point of view but as well in physical complaints also, patient developed themselves as a strong personality.',
     testimonial: 'Dr. Ritu\'s holistic approach to therapy has been life-changing. She helped me understand the connection between my emotional state and physical health. Her expertise in family and couple counseling has improved my relationships significantly.',
     email: 'rmudgil7198@gmail.com',
     image: '/therapists/rmudgil7198.jpeg',
     video: '/therapists/ritu.mp4',
+    availableSlots: generateSlots('Online', 7)
+  },
+  {
+    name: 'Dr Priyanka Kalra',
+    title: 'Psychiatrist',
+    experience: '10+ years',
+    price: {
+      amount: 2000,
+      duration: 45,
+      currency: '₹'
+    },
+    expertise: ['Depression', 'Stress', 'Sleep problems', 'OCD', 'Anxiety', 'Autism', 'Hyperactivity', 'Learning disability'],
+    languages: ['English', 'Hindi', 'Punjabi'],
+    gender: 'Female',
+    center: 'Global Wellness, 127, I – Block, Sarabha Nagar, Ludhiana',
+    description: 'Dr Priyanka Kalra is practicing as a Psychiatrist at Global Wellness, 127, I – Block, Sarabha Nagar, Ludhiana, and has done her MD from GMCH, Chandigarh. She is a senior Psychiatrist and has experience of more than 10 years from DMC, Ludhiana, and Deep Hospital, Ludhiana. She has been rated as the Best Psychiatrist in Ludhiana for the past 5 years (Source bestratedcom).',
+    bio: 'Dr Priyanka Kalra is practicing as a Psychiatrist at Global Wellness, 127, I – Block, Sarabha Nagar, Ludhiana, and has done her MD from GMCH, Chandigarh. She is a senior Psychiatrist and has experience of more than 10 years from DMC, Ludhiana, and Deep Hospital, Ludhiana. She has been rated as the Best Psychiatrist in Ludhiana for the past 5 years (Source bestratedcom). She specializes in cases of depression, stress, sleep problems, OCD and anxiety for adults and autism, hyperactivity and learning disability for children. She believes that mental health problems can be resolved very well through counselling, medication and lifestyle changes. At Global Wellness, there is an experienced team of psychologists who handle all cases with counselling through CBT, DBT, and REBT.',
+    qualifications: 'MD from GMCH, Chandigarh',
+    faqAnswer: 'I believe that mental health problems can be resolved very well through counselling, medication and lifestyle changes. At Global Wellness, there is an experienced team of psychologists who handle all cases with counselling through CBT, DBT, and REBT.',
+    testimonial: 'Dr Priyanka Kalra has been rated as the Best Psychiatrist in Ludhiana for the past 5 years. Her comprehensive approach combining medication, counselling, and lifestyle changes has helped countless patients achieve better mental health. Her expertise in both adult and pediatric psychiatry makes her an exceptional choice for families.',
+    email: 'priyankakalra@gmail.com',
+    image: '/therapists/priyankakalra.jpeg',
+    video: '/therapists/priyankakalra.mp4',
     availableSlots: generateSlots('Online', 7)
   }
 ];
