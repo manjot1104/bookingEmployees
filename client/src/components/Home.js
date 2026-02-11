@@ -41,7 +41,7 @@ function Home({ user, isAuthenticated, onLogout }) {
     const expertTypeMap = {
       'Psychiatrist': ['Priyanka Kalra', 'Kalra'],
       'Child and Youth Expert': ['Mitali', 'Prithvi', 'Priyanka Leekha', 'Ramandeep'],
-      'Couples Therapist': ['Sunil', 'Ritu', 'Mitali', 'Vanita'],
+      'Therapist': ['Sunil', 'Ritu', 'Mitali', 'Vanita'],
       'Career Counseling': ['Mitali', 'Priyanka Leekha', 'Ramandeep']
     };
     
@@ -107,10 +107,10 @@ function Home({ user, isAuthenticated, onLogout }) {
               Child and Youth Expert
             </button>
             <button 
-              className={expertType === 'Couples Therapist' ? 'active' : ''}
-              onClick={() => setExpertType('Couples Therapist')}
+              className={expertType === 'Therapist' ? 'active' : ''}
+              onClick={() => setExpertType('Therapist')}
             >
-              Couples Therapist
+              Therapist
             </button>
             <button 
               className={expertType === 'Career Counseling' ? 'active' : ''}
