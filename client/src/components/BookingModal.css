@@ -96,6 +96,118 @@
   border-color: #ff6b35;
 }
 
+.date-picker-button {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 1rem;
+  background: white;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.3s;
+}
+
+.date-picker-button:hover {
+  border-color: #ff6b35;
+}
+
+.date-picker-button:focus {
+  outline: none;
+  border-color: #ff6b35;
+}
+
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+  padding: 1rem;
+  background: #f9f9f9;
+  border-radius: 8px;
+  border: 1px solid #e0e0e0;
+  max-height: 400px;
+  overflow-y: auto;
+  position: relative;
+  z-index: 10;
+}
+
+.calendar-date-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 0.75rem 0.5rem;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  background: white;
+  cursor: pointer;
+  transition: all 0.3s;
+  min-height: 70px;
+  pointer-events: auto;
+  position: relative;
+  z-index: 1;
+}
+
+.calendar-date-cell:hover:not(:disabled) {
+  border-color: #ff6b35;
+  background: #fff5f2;
+  transform: translateY(-2px);
+  box-shadow: 0 2px 8px rgba(255, 107, 53, 0.2);
+}
+
+.calendar-date-cell.selected {
+  background-color: #ff6b35;
+  border-color: #ff6b35;
+  color: white;
+}
+
+.calendar-date-cell.selected .date-day,
+.calendar-date-cell.selected .date-number,
+.calendar-date-cell.selected .date-month {
+  color: white;
+}
+
+.calendar-date-cell:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background: #f5f5f5;
+}
+
+.calendar-date-cell.no-slots {
+  opacity: 0.7;
+  background: #f9f9f9;
+}
+
+.calendar-date-cell.no-slots:hover {
+  opacity: 1;
+  border-color: #ff6b35;
+  background: #fff5f2;
+  transform: translateY(-2px);
+  box-shadow: 0 2px 8px rgba(255, 107, 53, 0.2);
+}
+
+.calendar-date-cell .date-day {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: #666;
+  text-transform: uppercase;
+  margin-bottom: 0.25rem;
+}
+
+.calendar-date-cell .date-number {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #333;
+  margin-bottom: 0.15rem;
+}
+
+.calendar-date-cell .date-month {
+  font-size: 0.7rem;
+  color: #999;
+  text-transform: uppercase;
+}
+
 .booking-type-tabs {
   display: flex;
   gap: 0.5rem;
@@ -221,9 +333,25 @@
   }
 
   .booking-form select,
-  .booking-form textarea {
+  .booking-form textarea,
+  .date-picker-button {
     padding: 0.65rem;
     font-size: 0.95rem;
+  }
+
+  .calendar-grid {
+    grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+    gap: 0.5rem;
+    padding: 0.75rem;
+  }
+
+  .calendar-date-cell {
+    padding: 0.5rem 0.25rem;
+    min-height: 60px;
+  }
+
+  .calendar-date-cell .date-number {
+    font-size: 1rem;
   }
 
   .booking-type-tabs {
@@ -286,9 +414,33 @@
   }
 
   .booking-form select,
-  .booking-form textarea {
+  .booking-form textarea,
+  .date-picker-button {
     padding: 0.6rem;
     font-size: 0.9rem;
+  }
+
+  .calendar-grid {
+    grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
+    gap: 0.4rem;
+    padding: 0.5rem;
+  }
+
+  .calendar-date-cell {
+    padding: 0.4rem 0.2rem;
+    min-height: 55px;
+  }
+
+  .calendar-date-cell .date-day {
+    font-size: 0.6rem;
+  }
+
+  .calendar-date-cell .date-number {
+    font-size: 0.9rem;
+  }
+
+  .calendar-date-cell .date-month {
+    font-size: 0.6rem;
   }
 
   .booking-type-tabs button {

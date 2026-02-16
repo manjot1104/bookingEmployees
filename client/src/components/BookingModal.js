@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { createBooking, createRazorpayOrder, verifyRazorpayPayment } from '../services/api';
-import { isDatePast, isToday, isTimePassedToday, formatISTDateString } from '../utils/dateUtils';
+import { isDatePast, isToday, isTimePassedToday, formatISTDateString, getCurrentISTDate, timeToMinutes } from '../utils/dateUtils';
 import './BookingModal.css';
 
 // Load Razorpay script
@@ -33,6 +33,7 @@ function BookingModal({ employee, onClose, onBookingSuccess, isAuthenticated, us
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [razorpayLoaded, setRazorpayLoaded] = useState(false);
+  const [showCalendar, setShowCalendar] = useState(false);
 
   const loadAvailableSlots = useCallback(() => {
     const slots = employee.availableSlots?.filter(
@@ -70,34 +71,89 @@ function BookingModal({ employee, onClose, onBookingSuccess, isAuthenticated, us
   }, [loadAvailableSlots]);
 
   const getAvailableDates = () => {
-    const dates = [...new Set(availableSlots.map(slot => {
+    // Get unique dates from available slots
+    const slotDates = [...new Set(availableSlots.map(slot => {
       const date = new Date(slot.date);
       return formatISTDateString(date);
     }))].sort();
 
-    return dates;
+    // If we have dates from slots, return them
+    if (slotDates.length > 0) {
+      return slotDates;
+    }
+
+    // If no slots available, generate next 30 days (excluding Sundays and past dates)
+    // This ensures users can still see dates even if slots haven't been created yet
+    const today = getCurrentISTDate();
+    const futureDates = [];
+    
+    for (let i = 0; i < 30; i++) {
+      const date = new Date(today);
+      date.setDate(date.getDate() + i);
+      
+      // Skip Sundays
+      if (date.getDay() === 0) continue;
+      
+      // Skip past dates
+      if (isDatePast(date)) continue;
+      
+      const dateStr = formatISTDateString(date);
+      futureDates.push(dateStr);
+    }
+
+    return futureDates;
   };
 
   const getAvailableTimes = (date) => {
-    const workingHours = ['10:00 AM', '11:00 AM', '12:00 PM', '01:00 PM', '02:00 PM', '03:00 PM', '04:00 PM', '05:00 PM', '06:00 PM'];
+    // Define time ranges
+    const timeRanges = [
+      { label: '10:00 AM - 01:00 PM', start: '10:00 AM', end: '01:00 PM' },
+      { label: '01:00 PM - 04:00 PM', start: '01:00 PM', end: '04:00 PM' },
+      { label: '04:00 PM - 07:00 PM', start: '04:00 PM', end: '07:00 PM' }
+    ];
     
-    return availableSlots
-      .filter(slot => {
-        const slotDate = new Date(slot.date);
-        const slotDateStr = formatISTDateString(slotDate);
-        const targetDateStr = formatISTDateString(date);
+    // Convert date string to Date object for comparison
+    const targetDate = new Date(date);
+    const targetDateStr = formatISTDateString(targetDate);
+    const isTargetToday = isToday(targetDate);
+    
+    // Get available slots for this date
+    const dateSlots = availableSlots.filter(slot => {
+      const slotDate = new Date(slot.date);
+      const slotDateStr = formatISTDateString(slotDate);
+      
+      // If it's today, exclude past times
+      const isSlotToday = isToday(slotDate);
+      const isPastTime = isSlotToday && isTimePassedToday(slot.time);
+      
+      return slotDateStr === targetDateStr && !isPastTime;
+    });
+    
+    // Check which time ranges are available
+    const availableRanges = timeRanges.filter(range => {
+      // If it's today, check if the range start time has passed
+      if (isTargetToday) {
+        if (isTimePassedToday(range.start)) {
+          return false;
+        }
+      }
+      
+      // If we have slots, check if any slot falls in this range
+      if (dateSlots.length > 0) {
+        const rangeStartMinutes = timeToMinutes(range.start);
+        const rangeEndMinutes = timeToMinutes(range.end);
         
-        // If it's today, exclude past times
-        const isSlotToday = isToday(slotDate);
-        const isPastTime = isSlotToday && isTimePassedToday(slot.time);
-        
-        return slotDateStr === targetDateStr && !isPastTime;
-      })
-      .map(slot => slot.time)
-      .sort((a, b) => {
-        const timeOrder = workingHours.indexOf(a) - workingHours.indexOf(b);
-        return timeOrder;
-      });
+        return dateSlots.some(slot => {
+          const slotMinutes = timeToMinutes(slot.time);
+          return slotMinutes >= rangeStartMinutes && slotMinutes < rangeEndMinutes;
+        });
+      }
+      
+      // If no slots, show all ranges (they can be booked)
+      return true;
+    });
+    
+    return availableRanges.map(range => range.label);
   };
 
   const handleSubmit = async (e) => {
@@ -129,11 +185,16 @@ function BookingModal({ employee, onClose, onBookingSuccess, isAuthenticated, us
     setLoading(true);
 
     try {
+      // Extract start time from range (e.g., "10:00 AM - 01:00 PM" -> "10:00 AM")
+      const bookingTime = selectedTime.includes(' - ') 
+        ? selectedTime.split(' - ')[0] 
+        : selectedTime;
+      
       // Step 1: Create booking
       const bookingResponse = await createBooking({
         employeeId: employee._id,
         bookingDate: selectedDate,
-        bookingTime: selectedTime,
+        bookingTime: bookingTime,
         type: bookingType,
         notes
       });
@@ -263,21 +324,45 @@ function BookingModal({ employee, onClose, onBookingSuccess, isAuthenticated, us
 
           <div className="form-group">
             <label>Select Date</label>
-            <select
-              value={selectedDate}
-              onChange={(e) => {
-                setSelectedDate(e.target.value);
-                setSelectedTime('');
-              }}
-              required
+            <button
+              type="button"
+              className="date-picker-button"
+              onClick={() => setShowCalendar(!showCalendar)}
             >
-              <option value="">Choose a date</option>
-              {getAvailableDates().map(date => (
-                <option key={date} value={date}>
-                  {formatDateDisplay(date)}
-                </option>
-              ))}
-            </select>
+              {selectedDate ? formatDateDisplay(selectedDate) : 'Choose a date'}
+            </button>
+            {showCalendar && (
+              <div className="calendar-grid" onClick={(e) => e.stopPropagation()}>
+                {getAvailableDates().map(date => {
+                  const dateObj = new Date(date);
+                  const isSelected = selectedDate === date;
+                  const hasSlots = availableSlots.some(slot => {
+                    const slotDate = new Date(slot.date);
+                    return formatISTDateString(slotDate) === date;
+                  });
+                  
+                  return (
+                    <button
+                      key={date}
+                      type="button"
+                      className={`calendar-date-cell ${isSelected ? 'selected' : ''} ${!hasSlots ? 'no-slots' : ''}`}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        setSelectedDate(date);
+                        setSelectedTime('');
+                        setShowCalendar(false);
+                      }}
+                    >
+                      <div className="date-day">{dateObj.toLocaleDateString('en-US', { weekday: 'short' })}</div>
+                      <div className="date-number">{dateObj.getDate()}</div>
+                      <div className="date-month">{dateObj.toLocaleDateString('en-US', { month: 'short' })}</div>
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+            {!selectedDate && <input type="hidden" value="" required />}
           </div>
 
           {selectedDate && (
