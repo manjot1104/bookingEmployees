@@ -25,7 +25,7 @@ const loadRazorpay = () => {
 
 function BookingModal({ employee, onClose, onBookingSuccess, isAuthenticated, user }) {
   const navigate = useNavigate();
-  const [bookingType, setBookingType] = useState('Online');
+  const bookingType = 'Online'; // Always Online
   const [selectedDate, setSelectedDate] = useState('');
   const [selectedTime, setSelectedTime] = useState('');
   const [notes, setNotes] = useState('');

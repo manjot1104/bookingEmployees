@@ -33,7 +33,6 @@ function BookingPage({ user }) {
   const [isExistingBooking, setIsExistingBooking] = useState(location.state?.isExistingBooking || false);
   const [razorpayLoaded, setRazorpayLoaded] = useState(false);
   const [bookingData, setBookingData] = useState(null); // Store booking data with discount info
-  const [isNewUser, setIsNewUser] = useState(null); // null = checking, true/false = result
 
   const loadEmployee = useCallback(async () => {
     if (!id) {
@@ -84,7 +83,6 @@ function BookingPage({ user }) {
     }
 
     // Discount is always valid (20% OFF)
-    setIsNewUser(true);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id, loadEmployee]);
 
@@ -250,29 +248,26 @@ function BookingPage({ user }) {
   };
 
   const getPriceDetails = () => {
-    if (!employee) return { original: 0, discount: 0, final: 0, hasDiscount: true };
+    if (!employee) return { original: 0, discount: 0, final: 0 };
     
     const originalPrice = employee.price.amount;
     // Always apply 20% discount
     const discountAmount = Math.round(originalPrice * 0.2);
     const finalPrice = originalPrice - discountAmount;
-    const hasDiscount = true;
 
     // If booking data exists, use the actual booking price (most accurate)
     if (bookingData && bookingData.price) {
       return {
         original: originalPrice,
         discount: bookingData.discountAmount || discountAmount,
-        final: bookingData.price.amount || finalPrice,
-        hasDiscount: true
+        final: bookingData.price.amount || finalPrice
       };
     }
 
     return {
       original: originalPrice,
       discount: discountAmount,
-      final: finalPrice,
-      hasDiscount: true
+      final: finalPrice
     };
   };
 
