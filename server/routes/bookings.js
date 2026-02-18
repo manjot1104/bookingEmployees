@@ -40,25 +40,11 @@ router.post('/', auth, [
       return res.status(400).json({ message: 'Selected slot is not available' });
     }
 
-    // Check if user is new (has no previous bookings)
-    const previousBookings = await Booking.countDocuments({ 
-      user: req.user._id,
-      status: { $ne: 'Cancelled' }
-    });
-    const isNewUser = previousBookings === 0;
-
-    // Calculate price with discount for new users
+    // Calculate price with 20% discount (always valid)
     const originalAmount = employee.price.amount;
-    let finalAmount = originalAmount;
-    let discountCode = null;
-    let discountAmount = 0;
-
-    if (isNewUser) {
-      // Apply 20% discount for new users on first session
-      discountCode = 'WELCOME20';
-      discountAmount = Math.round(originalAmount * 0.2);
-      finalAmount = originalAmount - discountAmount;
-    }
+    const discountCode = 'WELCOME20';
+    const discountAmount = Math.round(originalAmount * 0.2);
+    const finalAmount = originalAmount - discountAmount;
 
     // Create booking with denormalized employee data
     const booking = new Booking({
@@ -73,7 +59,7 @@ router.post('/', auth, [
         amount: finalAmount,
         currency: employee.price.currency
       },
-      originalAmount: isNewUser ? originalAmount : undefined,
+      originalAmount: originalAmount,
       discountCode: discountCode,
       discountAmount: discountAmount,
       notes,

@@ -290,38 +290,17 @@ function BookingModal({ employee, onClose, onBookingSuccess, isAuthenticated, us
         
         <div className="employee-summary">
           <p><strong>Experience:</strong> {employee.experience}</p>
-          <p><strong>Price:</strong> {employee.price.currency}{employee.price.amount} for {employee.price.duration} mins</p>
+          <p><strong>Price:</strong> 
+            <span className="price-with-cut">
+              <span className="original-price-cut">{employee.price.currency}{employee.price.amount}</span>
+              <span className="discount-badge-small">20% OFF</span>
+            </span>
+            {' '}
+            <span className="discounted-price-text">{employee.price.currency}{Math.round(employee.price.amount * 0.8)} for {employee.price.duration} mins</span>
+          </p>
         </div>
 
         <form onSubmit={handleSubmit} className="booking-form">
-          <div className="form-group">
-            <label>Booking Type</label>
-            <div className="booking-type-tabs">
-              <button
-                type="button"
-                className={bookingType === 'Online' ? 'active' : ''}
-                onClick={() => {
-                  setBookingType('Online');
-                  setSelectedDate('');
-                  setSelectedTime('');
-                }}
-              >
-                Online
-              </button>
-              <button
-                type="button"
-                className={bookingType === 'In-person' ? 'active' : ''}
-                onClick={() => {
-                  setBookingType('In-person');
-                  setSelectedDate('');
-                  setSelectedTime('');
-                }}
-              >
-                In-person
-              </button>
-            </div>
-          </div>
-
           <div className="form-group">
             <label>Select Date</label>
             <button

@@ -27,7 +27,7 @@ const dummyEmployees = [
   {
     name: 'Prithvi Padam',
     title: 'Psychologist',
-    experience: '4+ years of experience',
+    experience: '7 years',
     price: {
       amount: 1100,
       duration: 45,
@@ -37,8 +37,8 @@ const dummyEmployees = [
     languages: ['English', 'Hindi', 'Punjabi'],
     gender: 'Male',
     center: 'Ludhiana',
-    description: 'I am a psychologist with a Master\'s degree in Psychology and over four years of experience working in clinical settings. I am trained in evidence-based therapeutic approaches including Cognitive Behavioral Therapy (CBT), Dialectical Behavior Therapy (DBT), Rational Emotive Behavior Therapy (REBT), Client/Person Centered Therapy.',
-    bio: 'I am a psychologist with a Master\'s degree in Psychology and over four years of experience working in clinical settings. I am trained in evidence-based therapeutic approaches including Cognitive Behavioral Therapy (CBT), Dialectical Behavior Therapy (DBT), Rational Emotive Behavior Therapy (REBT), Client/Person Centered Therapy. My work focuses on providing structured, compassionate, and goal-oriented therapy to help individuals manage emotional distress, develop healthier coping strategies, and improve overall psychological well-being.',
+    description: 'I am a psychologist with a Master\'s degree in Psychology and 7 years of experience working in clinical settings. I am trained in evidence-based therapeutic approaches including Cognitive Behavioral Therapy (CBT), Dialectical Behavior Therapy (DBT), Rational Emotive Behavior Therapy (REBT), Client/Person Centered Therapy.',
+    bio: 'I am a psychologist with a Master\'s degree in Psychology and 7 years of experience working in clinical settings. I am trained in evidence-based therapeutic approaches including Cognitive Behavioral Therapy (CBT), Dialectical Behavior Therapy (DBT), Rational Emotive Behavior Therapy (REBT), Client/Person Centered Therapy. My work focuses on providing structured, compassionate, and goal-oriented therapy to help individuals manage emotional distress, develop healthier coping strategies, and improve overall psychological well-being.',
     qualifications: 'Master\'s degree in Psychology, CBT Practitioner, DBT Certification, REBT Certification',
     faqAnswer: 'I wanted to become a therapist because I value meaningful human connection and believe that with the right tools and support, people can make lasting psychological changes. Being able to support others through difficult phases of life is both challenging and deeply fulfilling for me.',
     testimonial: 'Sessions with Prithvi are going great. They have been really helpful, I have noticed significant progress after meeting them. The structured approach and evidence-based techniques have made a real difference in my mental well-being.',
@@ -50,7 +50,7 @@ const dummyEmployees = [
   {
     name: 'Priyanka Leekha',
     title: 'Counselling Psychologist',
-    experience: 'Masters completed in 2023; 3 years of experience',
+    experience: '5 years',
     price: {
       amount: 1100,
       duration: 45,
@@ -142,7 +142,7 @@ const dummyEmployees = [
   {
     name: 'Dr. Ritu',
     title: 'Psychologist',
-    experience: '24 years (Work experience), 3 years (As a Psychologist)',
+    experience: '24 years',
     price: {
       amount: 1200,
       duration: 45,
@@ -152,8 +152,8 @@ const dummyEmployees = [
     languages: ['English', 'Hindi', 'Punjabi'],
     gender: 'Female',
     center: 'Ludhiana',
-    description: 'Psychologist with 24 years of work experience and 3 years as a Psychologist, specializing in anxiety, depression, OCD, person centered counseling, family counseling and couple counseling.',
-    bio: 'I am a Psychologist with qualifications in BHMS, CBT Practitioner certification, and M.A. in Psychology. With 24 years of overall work experience and 3 years of experience as a Psychologist, I work with all sorts of psychological disorders like anxiety, depression, OCD, person centered counseling, family counseling and couple counseling. I have chosen to be a Psychologist based on my clinical experiences where I saw that emotions are baseline of human behavior and both progress and regression depends upon our sensitivity and emotional level.',
+    description: 'Psychologist with 24 years of experience, specializing in anxiety, depression, OCD, person centered counseling, family counseling and couple counseling.',
+    bio: 'I am a Psychologist with qualifications in BHMS, CBT Practitioner certification, and M.A. in Psychology. With 24 years of experience, I work with all sorts of psychological disorders like anxiety, depression, OCD, person centered counseling, family counseling and couple counseling. I have chosen to be a Psychologist based on my clinical experiences where I saw that emotions are baseline of human behavior and both progress and regression depends upon our sensitivity and emotional level.',
     qualifications: 'CBT Practitioner, M.A. (Psychology), BHMS',
     faqAnswer: 'I have chosen to be a Psychologist on my clinical experiences. Emotions are baseline of human behavior. Both progress and regression depends upon our sensitivity and emotional level. In my clinical practise I have seen diseases not getting cured because of stress and doctors used to say there is some sort of stress lying because of which medicine are not responding. Then I have taken decision why not choose a profession which helps patient to strengthen their sensitivity and curing disease. While adopting this profession I found wonderful result not only at psychology point of view but as well in physical complaints also, patient developed themselves as a strong personality.',
     testimonial: 'Dr. Ritu\'s holistic approach to therapy has been life-changing. She helped me understand the connection between my emotional state and physical health. Her expertise in family and couple counseling has improved my relationships significantly.',
@@ -171,12 +171,12 @@ const dummyEmployees = [
       duration: 45,
       currency: '₹'
     },
-    expertise: ['Depression', 'Stress', 'Sleep problems', 'OCD', 'Anxiety', 'Autism', 'Hyperactivity', 'Learning disability'],
+    expertise: ['Depression', 'Anxiety', 'Counselling', 'OCD', 'Stress', 'Sleep problems', 'Eating Disorder', 'Schizophrenia', 'Personality Disorders', 'PTSD', 'Panic Disorder', 'Migraine', 'Adjustment Disorders', 'Autism', 'Hyperactivity', 'Learning disability'],
     languages: ['English', 'Hindi', 'Punjabi'],
     gender: 'Female',
     center: 'Global Wellness, 127, I – Block, Sarabha Nagar, Ludhiana',
     description: 'Dr Priyanka Kalra is practicing as a Psychiatrist at Global Wellness, 127, I – Block, Sarabha Nagar, Ludhiana, and has done her MD from GMCH, Chandigarh. She is a senior Psychiatrist and has experience of more than 10 years from DMC, Ludhiana, and Deep Hospital, Ludhiana. She has been rated as the Best Psychiatrist in Ludhiana for the past 5 years (Source bestratedcom).',
-    bio: 'Dr Priyanka Kalra is practicing as a Psychiatrist at Global Wellness, 127, I – Block, Sarabha Nagar, Ludhiana, and has done her MD from GMCH, Chandigarh. She is a senior Psychiatrist and has experience of more than 10 years from DMC, Ludhiana, and Deep Hospital, Ludhiana. She has been rated as the Best Psychiatrist in Ludhiana for the past 5 years (Source bestratedcom). She specializes in cases of depression, stress, sleep problems, OCD and anxiety for adults and autism, hyperactivity and learning disability for children. She believes that mental health problems can be resolved very well through counselling, medication and lifestyle changes. At Global Wellness, there is an experienced team of psychologists who handle all cases with counselling through CBT, DBT, and REBT.',
+    bio: 'Dr Priyanka Kalra is practicing as a Psychiatrist at Global Wellness, 127, I – Block, Sarabha Nagar, Ludhiana, and has done her MD from GMCH, Chandigarh. She is a senior Psychiatrist and has experience of more than 10 years from DMC, Ludhiana, and Deep Hospital, Ludhiana. She has been rated as the Best Psychiatrist in Ludhiana for the past 5 years (Source bestratedcom). She specializes in cases of Depression, Anxiety, Counselling, OCD, Stress, Sleep problems, Eating Disorders, Schizophrenia, Personality Disorders, PTSD, Panic Disorder, Migraine, Adjustment Disorders for adults and autism, hyperactivity and learning disability for children. She believes that mental health problems can be resolved very well through counselling, medication and lifestyle changes. At Global Wellness, there is an experienced team of psychologists who handle all cases with counselling through CBT, DBT, and REBT.',
     qualifications: 'MD from GMCH, Chandigarh',
     faqAnswer: 'I believe that mental health problems can be resolved very well through counselling, medication and lifestyle changes. At Global Wellness, there is an experienced team of psychologists who handle all cases with counselling through CBT, DBT, and REBT.',
     testimonial: 'Dr Priyanka Kalra has been rated as the Best Psychiatrist in Ludhiana for the past 5 years. Her comprehensive approach combining medication, counselling, and lifestyle changes has helped countless patients achieve better mental health. Her expertise in both adult and pediatric psychiatry makes her an exceptional choice for families.',

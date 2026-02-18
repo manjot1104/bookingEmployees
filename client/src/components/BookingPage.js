@@ -36,19 +36,42 @@ function BookingPage({ user }) {
   const [isNewUser, setIsNewUser] = useState(null); // null = checking, true/false = result
 
   const loadEmployee = useCallback(async () => {
+    if (!id) {
+      console.error('No employee ID provided');
+      return;
+    }
+    
     try {
+      console.log('Loading employee with ID:', id);
       const data = await getEmployee(id);
-      setEmployee(data);
+      if (data) {
+        console.log('Employee loaded successfully:', data.name);
+        setEmployee(data);
+      } else {
+        console.error('Employee data is null');
+        alert('Employee not found. Redirecting to home...');
+        navigate('/');
+      }
     } catch (error) {
       console.error('Error loading employee:', error);
+      console.error('Error response:', error.response?.data);
+      if (error.response?.status === 404) {
+        alert('Employee not found. Redirecting to home...');
+        navigate('/');
+      }
     }
-  }, [id]);
+  }, [id, navigate]);
 
   useEffect(() => {
-    // If employee data is passed from state, use it; otherwise load from API
-    if (!employee && id) {
+    // If employee data is passed from state, use it
+    if (location.state?.employee) {
+      console.log('Using employee from location state:', location.state.employee.name);
+      setEmployee(location.state.employee);
+    } else if (id) {
+      // Always try to load from API if we have ID (in case location.state is lost)
       loadEmployee();
     }
+    
     // Load Razorpay script
     loadRazorpay().then(() => {
       setRazorpayLoaded(true);
@@ -60,25 +83,10 @@ function BookingPage({ user }) {
       setIsExistingBooking(true);
     }
 
-    // Check if user is new (eligible for discount)
-    const checkIfNewUser = async () => {
-      try {
-        const { getMyBookings } = await import('../services/api');
-        const bookings = await getMyBookings();
-        // User is new if they have no bookings or only cancelled bookings
-        const activeBookings = bookings.filter(b => b.status !== 'Cancelled');
-        setIsNewUser(activeBookings.length === 0);
-      } catch (error) {
-        console.error('Error checking user bookings:', error);
-        setIsNewUser(false); // Default to false on error
-      }
-    };
-
-    if (user) {
-      checkIfNewUser();
-    }
+    // Discount is always valid (20% OFF)
+    setIsNewUser(true);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [id, location.state, user]);
+  }, [id, loadEmployee]);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -104,6 +112,12 @@ function BookingPage({ user }) {
   const handlePayment = async () => {
     if (!selectedDate || !selectedTime) {
       alert('Please select date and time');
+      return;
+    }
+
+    if (!employee || !employee._id) {
+      alert('Employee information is missing. Please go back and try again.');
+      navigate('/');
       return;
     }
 
@@ -208,37 +222,57 @@ function BookingPage({ user }) {
       setLoading(false);
     } catch (error) {
       console.error('Payment error:', error);
-      alert(error.response?.data?.message || 'Failed to process payment');
+      const errorMessage = error.response?.data?.message || error.message || 'Failed to process payment';
+      
+      // If employee not found, try to reload employee data
+      if (errorMessage.includes('Employee not found') || errorMessage.includes('employee')) {
+        console.log('Employee not found, attempting to reload...');
+        if (id) {
+          try {
+            const employeeData = await getEmployee(id);
+            if (employeeData) {
+              setEmployee(employeeData);
+              alert('Employee data reloaded. Please try again.');
+              return;
+            }
+          } catch (reloadError) {
+            console.error('Error reloading employee:', reloadError);
+          }
+        }
+        alert('Employee not found. Please go back and select the employee again.');
+        navigate('/');
+        return;
+      }
+      
+      alert(errorMessage);
       setLoading(false);
     }
   };
 
   const getPriceDetails = () => {
-    if (!employee) return { original: 0, discount: 0, final: 0, hasDiscount: false };
+    if (!employee) return { original: 0, discount: 0, final: 0, hasDiscount: true };
     
     const originalPrice = employee.price.amount;
-    let finalPrice = originalPrice;
-    let discountAmount = 0;
-    let hasDiscount = false;
+    // Always apply 20% discount
+    const discountAmount = Math.round(originalPrice * 0.2);
+    const finalPrice = originalPrice - discountAmount;
+    const hasDiscount = true;
 
-    // If booking data exists and has discount, use it (most accurate)
-    if (bookingData && bookingData.discountCode === 'WELCOME20') {
-      hasDiscount = true;
-      discountAmount = bookingData.discountAmount || Math.round(originalPrice * 0.2);
-      finalPrice = bookingData.price.amount || (originalPrice - discountAmount);
-    } 
-    // Otherwise, check if user is new (for preview before booking creation)
-    else if (isNewUser === true) {
-      hasDiscount = true;
-      discountAmount = Math.round(originalPrice * 0.2);
-      finalPrice = originalPrice - discountAmount;
+    // If booking data exists, use the actual booking price (most accurate)
+    if (bookingData && bookingData.price) {
+      return {
+        original: originalPrice,
+        discount: bookingData.discountAmount || discountAmount,
+        final: bookingData.price.amount || finalPrice,
+        hasDiscount: true
+      };
     }
 
     return {
       original: originalPrice,
       discount: discountAmount,
       final: finalPrice,
-      hasDiscount: hasDiscount
+      hasDiscount: true
     };
   };
 
@@ -262,18 +296,10 @@ function BookingPage({ user }) {
             ← Back
           </button>
 
-            {priceDetails.hasDiscount && (
             <div className="discount-box" style={{ backgroundColor: '#4caf50', color: 'white' }}>
-              <strong>🎉 WELCOME20 Applied!</strong>
-              <p>20% Off on Your First Session</p>
-            </div>
-          )}
-          {!priceDetails.hasDiscount && (
-            <div className="discount-box">
-              <strong>20% Off</strong>
-              <p>20% Off on Pre-booking First Session (New Users Only)</p>
-            </div>
-          )}
+            <strong>🎉 WELCOME20 Applied!</strong>
+            <p>20% Off on All Sessions</p>
+          </div>
 
           <div className="progress-tracker">
             <div className="progress-step completed">
@@ -372,22 +398,21 @@ function BookingPage({ user }) {
             <h3>Pricing Details</h3>
             <div className="price-row">
               <span>Standard session price:</span>
-              <span>₹{priceDetails.original}.00</span>
+              <span className="price-with-cut">
+                <span className="original-price-cut">₹{priceDetails.original}.00</span>
+                <span className="discount-badge-small">20% OFF</span>
+              </span>
             </div>
-            {priceDetails.hasDiscount && (
-              <>
-                <div className="price-row discount">
-                  <span>Discount (WELCOME20):</span>
-                  <span style={{ color: '#4caf50' }}>-₹{priceDetails.discount}.00</span>
-                </div>
-                <div className="price-row" style={{ fontSize: '0.9rem', color: '#666', marginTop: '0.5rem' }}>
-                  <span>🎉 Welcome discount applied!</span>
-                </div>
-              </>
-            )}
+            <div className="price-row discount">
+              <span>Discount (WELCOME20):</span>
+              <span style={{ color: '#4caf50' }}>-₹{priceDetails.discount || Math.round(priceDetails.original * 0.2)}.00</span>
+            </div>
+            <div className="price-row" style={{ fontSize: '0.9rem', color: '#666', marginTop: '0.5rem' }}>
+              <span>🎉 Welcome discount applied!</span>
+            </div>
             <div className="price-row final">
               <span>Final amount to Pay:</span>
-              <span>₹{priceDetails.final}.00</span>
+              <span>₹{priceDetails.final || Math.round(priceDetails.original * 0.8)}.00</span>
             </div>
           </div>
 
@@ -395,6 +420,7 @@ function BookingPage({ user }) {
             className="payment-button"
             onClick={handlePayment}
             disabled={loading || !selectedDate || !selectedTime || !razorpayLoaded}
+            type="button"
           >
             {loading ? 'Processing...' : !razorpayLoaded ? 'Loading Payment...' : 'MAKE PAYMENT'}
           </button>

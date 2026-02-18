@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getEmployee } from '../services/api';
 import { getCurrentISTDate, isDatePast, isToday, isTimePassedToday, formatISTDateString } from '../utils/dateUtils';
@@ -10,6 +10,7 @@ const WORKING_HOURS = ['10:00 AM', '11:00 AM', '12:00 PM', '01:00 PM', '02:00 PM
 function EmployeeProfile({ user, isAuthenticated }) {
   const { id } = useParams();
   const navigate = useNavigate();
+  const lastLoadedId = useRef(null);
   
   console.log('EmployeeProfile - ID from URL:', id);
   const [employee, setEmployee] = useState(null);
@@ -21,20 +22,26 @@ function EmployeeProfile({ user, isAuthenticated }) {
   const [showFullBio, setShowFullBio] = useState(false);
 
   const loadEmployee = useCallback(async () => {
+    if (!id) {
+      console.error('No employee ID provided');
+      setLoading(false);
+      return;
+    }
+
+    // Don't reload if we already have this employee loaded
+    if (lastLoadedId.current === id) {
+      console.log('Employee already loaded, skipping reload');
+      setLoading(false);
+      return;
+    }
+
     setLoading(true);
     try {
-      if (!id) {
-        console.error('No employee ID provided');
-        setLoading(false);
-        return;
-      }
-      
       console.log('Loading employee with ID:', id);
       const data = await getEmployee(id);
       
       if (!data) {
         console.error('Employee data is null or undefined');
-        setEmployee(null);
         setLoading(false);
         return;
       }
@@ -42,6 +49,7 @@ function EmployeeProfile({ user, isAuthenticated }) {
       console.log('Employee data loaded:', data);
       console.log('Available slots:', data.availableSlots);
       setEmployee(data);
+      lastLoadedId.current = id;
       setLoading(false);
     } catch (error) {
       console.error('Error loading employee:', error);
@@ -51,9 +59,10 @@ function EmployeeProfile({ user, isAuthenticated }) {
       // If 404, employee doesn't exist
       if (error.response?.status === 404) {
         console.error('Employee not found in database');
+        setEmployee(null);
+        lastLoadedId.current = null;
       }
       
-      setEmployee(null);
       setLoading(false);
     }
   }, [id]);
@@ -319,12 +328,34 @@ function EmployeeProfile({ user, isAuthenticated }) {
     return employee.price.amount;
   };
 
-  if (loading) {
+  if (loading && !employee) {
     return <div className="profile-loading">Loading...</div>;
   }
 
+  if (!employee && !loading) {
+    return (
+      <div className="profile-error">
+        <p>Employee not found</p>
+        <button 
+          onClick={() => navigate('/')} 
+          style={{ 
+            marginTop: '1rem', 
+            padding: '0.5rem 1rem', 
+            backgroundColor: '#ff6b35', 
+            color: 'white', 
+            border: 'none', 
+            borderRadius: '6px', 
+            cursor: 'pointer' 
+          }}
+        >
+          Go Back to Home
+        </button>
+      </div>
+    );
+  }
+
   if (!employee) {
-    return <div className="profile-error">Employee not found</div>;
+    return <div className="profile-loading">Loading...</div>;
   }
 
   const availableDates = getAvailableDates();
@@ -540,7 +571,14 @@ function EmployeeProfile({ user, isAuthenticated }) {
               <h3>Session Duration</h3>
               <div className="duration-info">
                 <span>45 mins, 1 session</span>
-                <span className="price">₹{price} /session</span>
+                <span className="price">
+                  <span className="price-with-cut">
+                    <span className="original-price-cut">₹{price}</span>
+                    <span className="discount-badge-small">20% OFF</span>
+                  </span>
+                  {' '}
+                  <span className="discounted-price-text">₹{Math.round(price * 0.8)} /session</span>
+                </span>
               </div>
             </div>
 

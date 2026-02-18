@@ -11,16 +11,20 @@ function Home({ user, isAuthenticated, onLogout }) {
   const [filteredEmployees, setFilteredEmployees] = useState([]);
   const [selectedEmployee, setSelectedEmployee] = useState(null);
   const [showBookingModal, setShowBookingModal] = useState(false);
-  const [expertType, setExpertType] = useState('Psychiatrist');
+  const [expertType, setExpertType] = useState('');
   const [loading, setLoading] = useState(true);
 
   const loadEmployees = useCallback(async () => {
     setLoading(true);
     try {
+      console.log('🔄 Loading employees...');
       const data = await getEmployees();
+      console.log('✅ Employees loaded:', data.length);
+      console.log('📋 Employee names:', data.map(e => e.name));
       setAllEmployees(data);
     } catch (error) {
-      console.error('Error loading employees:', error);
+      console.error('❌ Error loading employees:', error);
+      console.error('Error details:', error.response?.data || error.message);
     } finally {
       setLoading(false);
     }
@@ -32,8 +36,17 @@ function Home({ user, isAuthenticated, onLogout }) {
 
   // Filter employees based on expertType
   useEffect(() => {
+    console.log('🔍 Filtering employees. Total:', allEmployees.length, 'Expert Type:', expertType);
     if (allEmployees.length === 0) {
+      console.log('⚠️ No employees to filter');
       setFilteredEmployees([]);
+      return;
+    }
+    
+    // If no expert type selected, show all employees
+    if (!expertType || expertType === '') {
+      console.log('✅ Showing all employees (no filter)');
+      setFilteredEmployees(allEmployees);
       return;
     }
     

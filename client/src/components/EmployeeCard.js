@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { isDatePast, isToday, isTimePassedToday } from '../utils/dateUtils';
 import './EmployeeCard.css';
 
 function EmployeeCard({ employee, onBookClick }) {
   const navigate = useNavigate();
-  const [bookingType, setBookingType] = useState('Online');
+  const bookingType = 'Online'; // Always Online
 
   // Working hours: 10:00 AM to 6:00 PM
   const workingHours = ['10:00 AM', '11:00 AM', '12:00 PM', '01:00 PM', '02:00 PM', '03:00 PM', '04:00 PM', '05:00 PM', '06:00 PM'];
@@ -118,12 +118,20 @@ function EmployeeCard({ employee, onBookClick }) {
         <div className="employee-details">
           <h3 className="employee-name">{employee.name}</h3>
           <p className="employee-experience">{employee.experience}</p>
-          <p className="employee-price">
-            {employee.price.currency}{employee.price.amount} for {employee.price.duration} mins
-          </p>
+          <div className="employee-price">
+            <div className="price-with-discount">
+              <span className="original-price">
+                {employee.price.currency}{employee.price.amount}
+              </span>
+              <span className="discount-badge">20% OFF</span>
+            </div>
+            <p className="discounted-price">
+              {employee.price.currency}{Math.round(employee.price.amount * 0.8)} for {employee.price.duration} mins
+            </p>
+          </div>
 
           <div className="expertise-tags">
-            {employee.expertise?.slice(0, 4).map((exp, index) => (
+            {employee.expertise?.map((exp, index) => (
               <span key={index} className="expertise-tag">{exp}</span>
             ))}
           </div>
@@ -135,16 +143,10 @@ function EmployeeCard({ employee, onBookClick }) {
           <div className="booking-options">
             <div className="booking-type-tabs">
               <button
-                className={bookingType === 'Online' ? 'active' : ''}
-                onClick={() => setBookingType('Online')}
+                className="active"
+                disabled
               >
                 Online
-              </button>
-              <button
-                className={bookingType === 'In-person' ? 'active' : ''}
-                onClick={() => setBookingType('In-person')}
-              >
-                In-person
               </button>
             </div>
 
@@ -155,7 +157,7 @@ function EmployeeCard({ employee, onBookClick }) {
 
             {nextSlot && (
               <p className="next-slot">
-                Next {bookingType.toLowerCase()} slot: <span className="slot-time">
+                Next online slot: <span className="slot-time">
                   {formatDate(nextSlot.date)}, {nextSlot.time}
                 </span>
               </p>

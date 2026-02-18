@@ -63,6 +63,34 @@
   color: #666;
 }
 
+.price-with-cut {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-right: 0.5rem;
+}
+
+.original-price-cut {
+  color: #999;
+  text-decoration: line-through;
+  font-size: 0.9em;
+  font-weight: 400;
+}
+
+.discount-badge-small {
+  background-color: #4caf50;
+  color: white;
+  padding: 0.15rem 0.4rem;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  font-weight: 600;
+}
+
+.discounted-price-text {
+  color: #333;
+  font-weight: 600;
+}
+
 .booking-form {
   display: flex;
   flex-direction: column;

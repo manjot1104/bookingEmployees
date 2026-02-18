@@ -78,10 +78,37 @@
 }
 
 .employee-price {
+  margin: 0 0 1rem 0;
+}
+
+.price-with-discount {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.25rem;
+}
+
+.original-price {
+  color: #999;
+  text-decoration: line-through;
+  font-size: 0.9rem;
+  font-weight: 400;
+}
+
+.discount-badge {
+  background-color: #4caf50;
+  color: white;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.discounted-price {
   color: #333;
   font-weight: 600;
-  margin: 0 0 1rem 0;
   font-size: 1rem;
+  margin: 0;
 }
 
 .expertise-tags {
@@ -250,6 +277,19 @@
   }
 
   .employee-price {
+    font-size: 0.95rem;
+  }
+
+  .original-price {
+    font-size: 0.85rem;
+  }
+
+  .discount-badge {
+    font-size: 0.7rem;
+    padding: 0.15rem 0.4rem;
+  }
+
+  .discounted-price {
     font-size: 0.95rem;
   }
 
