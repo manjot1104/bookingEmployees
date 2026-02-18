@@ -13,7 +13,8 @@ const imagePaths = {
   'vanita734722@gmail.com': '/therapists/vanita734722.jpeg',
   'lordslove89@gmail.com': '/therapists/lordslove89.jpeg',
   'mitalisharma61196@gmail.com': '/therapists/mitalisharma61196.jpeg',
-  'rmudgil7198@gmail.com': '/therapists/rmudgil7198.jpeg'
+  'rmudgil7198@gmail.com': '/therapists/rmudgil7198.jpeg',
+  'priyankakalra@gmail.com': '/therapists/priyankakalra.jpeg'
 };
 
 async function updateImagePaths() {
