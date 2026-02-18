@@ -257,24 +257,9 @@ async function seedData() {
         }
       }
     } else {
-      console.log(`⚠️  Employee data already exists (${count} employees).`);
-      console.log('🔄 Replacing with new therapist data...');
-      
-      // Delete all existing employees
-      await Employee.deleteMany({});
-      console.log('✅ Old data deleted.');
-      
-      // Insert new data
-      const inserted = await Employee.insertMany(dummyEmployees);
-      console.log('✅ New employee data seeded successfully!');
-      console.log(`✅ Inserted ${inserted.length} employees`);
-      
-      // Log first employee
-      if (inserted.length > 0) {
-        const firstEmployee = await Employee.findById(inserted[0]._id);
-        console.log('👤 First employee:', firstEmployee.name);
-        console.log('📅 Slots count:', firstEmployee.availableSlots?.length || 0);
-      }
+      console.log(`✅ Employee data already exists (${count} employees).`);
+      console.log('ℹ️  Skipping seed - employees already in database.');
+      console.log('💡 To reseed, run: npm run reseed');
     }
   } catch (error) {
     console.error('❌ Error seeding data:', error);

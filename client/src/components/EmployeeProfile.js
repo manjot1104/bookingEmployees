@@ -15,7 +15,7 @@ function EmployeeProfile({ user, isAuthenticated }) {
   console.log('EmployeeProfile - ID from URL:', id);
   const [employee, setEmployee] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [sessionType, setSessionType] = useState('Online');
+  const sessionType = 'Online'; // Always Online
   const [duration] = useState(45); // Fixed at 45 minutes for all sessions
   const [selectedDate, setSelectedDate] = useState(null);
   const [selectedTime, setSelectedTime] = useState('');
@@ -71,11 +71,7 @@ function EmployeeProfile({ user, isAuthenticated }) {
     loadEmployee();
   }, [loadEmployee]);
 
-  useEffect(() => {
-    // Reset selection when session type changes
-    setSelectedDate(null);
-    setSelectedTime('');
-  }, [sessionType]);
+  // Session type is always 'Online', no need to reset on change
 
   const getAvailableDates = () => {
     if (!employee?.availableSlots || employee.availableSlots.length === 0) {
@@ -83,8 +79,8 @@ function EmployeeProfile({ user, isAuthenticated }) {
       return [];
     }
     
-    // Map "Video" to "Online" for compatibility
-    const slotType = sessionType === 'Video' ? 'Online' : sessionType;
+    // Always use "Online" for slots
+    const slotType = 'Online';
     
     const slots = employee.availableSlots.filter(
       slot => slot.type === slotType && !slot.isBooked
@@ -175,8 +171,8 @@ function EmployeeProfile({ user, isAuthenticated }) {
   const getAvailableTimes = (date) => {
     if (!employee?.availableSlots) return [];
     
-    // Map "Video" to "Online" for compatibility
-    const slotType = sessionType === 'Video' ? 'Online' : sessionType;
+    // Always use "Online" for slots
+    const slotType = 'Online';
     
     // Get all slots for this date and type
     const slotsForDate = employee.availableSlots.filter(slot => {
@@ -545,22 +541,8 @@ function EmployeeProfile({ user, isAuthenticated }) {
               <h3>What type of session would you like?</h3>
               <div className="session-type-buttons">
                 <button
-                  className={sessionType === 'In-person' ? 'active' : ''}
-                  onClick={() => {
-                    setSessionType('In-person');
-                    setSelectedDate(null);
-                    setSelectedTime('');
-                  }}
-                >
-                  In-Person
-                </button>
-                <button
-                  className={sessionType === 'Online' ? 'active' : ''}
-                  onClick={() => {
-                    setSessionType('Online');
-                    setSelectedDate(null);
-                    setSelectedTime('');
-                  }}
+                  className="active"
+                  disabled
                 >
                   Video
                 </button>
@@ -659,7 +641,7 @@ function EmployeeProfile({ user, isAuthenticated }) {
                     <p style={{ fontSize: '0.8rem', color: '#999', marginTop: '0.5rem' }}>
                       Total slots in database: {employee.availableSlots.length}
                       <br />
-                      Filtered for {sessionType}: {employee.availableSlots.filter(s => s.type === (sessionType === 'Video' ? 'Online' : sessionType)).length}
+                      Filtered for Online: {employee.availableSlots.filter(s => s.type === 'Online').length}
                     </p>
                   )}
                 </div>
