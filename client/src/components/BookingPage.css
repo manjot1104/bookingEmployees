@@ -363,8 +363,18 @@
   z-index: 10;
   touch-action: manipulation;
   -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
   min-height: 48px;
   user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  outline: none;
+  -webkit-outline: none;
+  box-sizing: border-box;
 }
 
 .payment-button:hover:not(:disabled) {
@@ -374,6 +384,18 @@
 .payment-button:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+  pointer-events: none;
+  -webkit-touch-callout: none;
+}
+
+.payment-button:active:not(:disabled) {
+  background-color: #d44a1f;
+  transform: scale(0.98);
+}
+
+.payment-button:focus:not(:disabled) {
+  outline: 2px solid #ff6b35;
+  outline-offset: 2px;
 }
 
 .booking-loading {
