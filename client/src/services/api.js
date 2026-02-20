@@ -209,4 +209,9 @@ export const updateSlotStatus = async (employeeId, slotIndex, isBooked) => {
   return response.data;
 };
 
+export const deleteBooking = async (bookingId) => {
+  const response = await api.delete(`/admin/bookings/${bookingId}`);
+  return response.data;
+};
+
 export default api;

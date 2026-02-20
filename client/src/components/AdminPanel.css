@@ -320,6 +320,26 @@
   color: #721c24;
 }
 
+.delete-booking-btn {
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  padding: 0.4rem 0.8rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 500;
+  transition: background-color 0.3s;
+}
+
+.delete-booking-btn:hover {
+  background-color: #c82333;
+}
+
+.delete-booking-btn:active {
+  transform: scale(0.95);
+}
+
 .type-badge.online {
   background-color: #e3f2fd;
   color: #1565c0;

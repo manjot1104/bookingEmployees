@@ -20,6 +20,8 @@ function EmployeeProfile({ user, isAuthenticated }) {
   const [selectedDate, setSelectedDate] = useState(null);
   const [selectedTime, setSelectedTime] = useState('');
   const [showFullBio, setShowFullBio] = useState(false);
+  const [currentMonth, setCurrentMonth] = useState(new Date().getMonth());
+  const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
 
   const loadEmployee = useCallback(async () => {
     if (!id) {
@@ -107,12 +109,7 @@ function EmployeeProfile({ user, isAuthenticated }) {
         return false;
       }
       
-      // Exclude Sundays (day 0)
-      const dayOfWeek = slotDate.getDay();
-      if (dayOfWeek === 0) {
-        return false;
-      }
-      
+      // Allow all days including Sundays
       // Filter only working hours (10:00 AM to 6:00 PM)
       if (!WORKING_HOURS.includes(slot.time)) {
         return false;
@@ -140,32 +137,12 @@ function EmployeeProfile({ user, isAuthenticated }) {
       return formatISTDateString(date);
     }))].sort();
     
-    // Ensure we show at least 7 days, generate dates if needed
-    const allDates = [...dates];
-    
-    // If we have less than 7 unique dates, generate additional dates
-    if (allDates.length < 7) {
-      for (let i = 0; allDates.length < 7; i++) {
-        const checkDate = new Date(todayIST);
-        checkDate.setDate(checkDate.getDate() + i);
-        
-        // Skip Sundays (day 0)
-        if (checkDate.getDay() === 0) continue;
-        
-        // Skip past dates
-        if (isDatePast(checkDate)) continue;
-        
-        const dateStr = formatISTDateString(checkDate);
-        if (!allDates.includes(dateStr)) {
-          allDates.push(dateStr);
-        }
-      }
-    }
-    
-    // Sort and return first 7
-    const sortedDates = allDates.sort();
-    console.log('Available dates:', sortedDates.slice(0, 7));
-    return sortedDates.slice(0, 7);
+    // Only return dates that actually have slots in the database
+    // Don't generate fake dates that don't have slots
+    // Return up to 60 days (approximately 2 months)
+    const sortedDates = dates.sort();
+    console.log('Available dates:', sortedDates.length);
+    return sortedDates.slice(0, 60);
   };
 
   const getAvailableTimes = (date) => {
@@ -190,6 +167,9 @@ function EmployeeProfile({ user, isAuthenticated }) {
       
       return slotDateStr === targetDateStr && slot.type === slotType;
     });
+    
+    // If no slots exist for this date, return empty array
+    if (slotsForDate.length === 0) return [];
     
     // Define 3-hour slot periods
     const slotPeriods = [
@@ -282,6 +262,61 @@ function EmployeeProfile({ user, isAuthenticated }) {
     const s = ["th", "st", "nd", "rd"];
     const v = n % 100;
     return s[(v - 20) % 10] || s[v] || s[0];
+  };
+
+  // Calendar grid functions
+  const getCalendarGrid = () => {
+    const firstDay = new Date(currentYear, currentMonth, 1);
+    const lastDay = new Date(currentYear, currentMonth + 1, 0);
+    const daysInMonth = lastDay.getDate();
+    const startingDayOfWeek = firstDay.getDay(); // 0 = Sunday, 1 = Monday, etc.
+    
+    const calendarDays = [];
+    
+    // Add empty cells for days before the first day of the month
+    for (let i = 0; i < startingDayOfWeek; i++) {
+      calendarDays.push(null);
+    }
+    
+    // Add all days of the month
+    for (let day = 1; day <= daysInMonth; day++) {
+      const date = new Date(currentYear, currentMonth, day);
+      const dateStr = formatISTDateString(date);
+      calendarDays.push({
+        day,
+        date: dateStr,
+        dateObj: date
+      });
+    }
+    
+    return calendarDays;
+  };
+
+  const getMonthName = () => {
+    const months = ['January', 'February', 'March', 'April', 'May', 'June', 
+                    'July', 'August', 'September', 'October', 'November', 'December'];
+    return months[currentMonth];
+  };
+
+  const changeMonth = (direction) => {
+    if (direction === 'prev') {
+      if (currentMonth === 0) {
+        setCurrentMonth(11);
+        setCurrentYear(currentYear - 1);
+      } else {
+        setCurrentMonth(currentMonth - 1);
+      }
+    } else {
+      if (currentMonth === 11) {
+        setCurrentMonth(0);
+        setCurrentYear(currentYear + 1);
+      } else {
+        setCurrentMonth(currentMonth + 1);
+      }
+    }
+    // Clear selected date when changing months
+    setSelectedDate(null);
+    setSelectedTime('');
   };
 
   const handleProceed = () => {
@@ -570,79 +605,133 @@ function EmployeeProfile({ user, isAuthenticated }) {
                 <h3>Check available slots</h3>
               </div>
               
-              {availableDates.length > 0 ? (
-                <>
-                  <div className="date-selector">
-                    {availableDates.slice(0, 7).map((date) => {
-                      const dateInfo = formatDate(date);
-                      const timesForDate = getAvailableTimes(date);
-                      // Check if there are any available (not booked, not past) slots
-                      const availableCount = timesForDate.filter(t => t.isAvailable).length;
-                      const isAvailable = availableCount > 0;
-                      const isSelected = selectedDate === date;
-                      
-                      return (
-                        <button
-                          key={date}
-                          className={`date-button ${isSelected ? 'selected' : ''} ${!isAvailable ? 'unavailable' : ''}`}
-                          onClick={() => {
-                            // Allow clicking even if no available slots, so user can see all times
+              {/* Calendar Grid */}
+              <div className="calendar-container">
+                {/* Month Navigation */}
+                <div className="calendar-header">
+                  <button 
+                    className="month-nav-button" 
+                    onClick={() => changeMonth('prev')}
+                    aria-label="Previous month"
+                  >
+                    ←
+                  </button>
+                  <h3 className="calendar-month-year">
+                    {getMonthName()} {currentYear}
+                  </h3>
+                  <button 
+                    className="month-nav-button" 
+                    onClick={() => changeMonth('next')}
+                    aria-label="Next month"
+                  >
+                    →
+                  </button>
+                </div>
+
+                {/* Day Headers */}
+                <div className="calendar-weekdays">
+                  <div className="calendar-weekday">Sun</div>
+                  <div className="calendar-weekday">Mon</div>
+                  <div className="calendar-weekday">Tue</div>
+                  <div className="calendar-weekday">Wed</div>
+                  <div className="calendar-weekday">Thu</div>
+                  <div className="calendar-weekday">Fri</div>
+                  <div className="calendar-weekday">Sat</div>
+                </div>
+
+                {/* Calendar Grid */}
+                <div className="calendar-grid">
+                  {getCalendarGrid().map((dayData, index) => {
+                    if (!dayData) {
+                      return <div key={`empty-${index}`} className="calendar-day empty"></div>;
+                    }
+
+                    const { day, date, dateObj } = dayData;
+                    const timesForDate = getAvailableTimes(date);
+                    const availableCount = timesForDate.filter(t => t.isAvailable).length;
+                    const isAvailable = availableCount > 0;
+                    const isSelected = selectedDate === date;
+                    const isTodayDate = isToday(dateObj);
+                    const isPast = isDatePast(dateObj);
+                    const isSunday = dateObj.getDay() === 0;
+                    
+                    // Check if date has slots in database (check directly from employee slots, not filtered availableDates)
+                    const hasSlotsInDB = employee?.availableSlots?.some(slot => {
+                      let slotDate;
+                      if (slot.date instanceof Date) {
+                        slotDate = new Date(slot.date);
+                      } else if (typeof slot.date === 'string') {
+                        slotDate = new Date(slot.date);
+                      } else {
+                        slotDate = new Date(slot.date);
+                      }
+                      const slotDateStr = formatISTDateString(slotDate);
+                      return slotDateStr === date && slot.type === 'Online';
+                    }) || false;
+                    
+                    const hasSlots = hasSlotsInDB || availableDates.includes(date);
+                    const hasAnySlots = timesForDate.length > 0 && timesForDate.some(t => 
+                      t.periodSlots && t.periodSlots.some(ps => ps.exists)
+                    );
+
+                    return (
+                      <button
+                        key={date}
+                        className={`calendar-day ${isSelected ? 'selected' : ''} ${!isAvailable && hasSlots ? 'booked' : ''} ${isPast ? 'past' : ''} ${isTodayDate ? 'today' : ''} ${isSunday ? 'sunday' : ''} ${!hasSlots ? 'no-slots' : ''}`}
+                        onClick={() => {
+                          if (!isPast && hasSlots) {
                             setSelectedDate(date);
                             setSelectedTime('');
-                          }}
-                        >
-                          <div className="date-day">{dateInfo.day}</div>
-                          <div className="date-label">{dateInfo.label}</div>
-                          {isAvailable && <div className="date-status available">{availableCount} available</div>}
-                          {!isAvailable && timesForDate.length > 0 && <div className="date-status">All booked</div>}
-                          {!isAvailable && timesForDate.length === 0 && <div className="date-status">No slots</div>}
-                        </button>
-                      );
-                    })}
-                  </div>
+                          }
+                        }}
+                        disabled={isPast || !hasSlots}
+                        title={isPast ? 'Past date' : !hasSlots ? 'No slots available' : isAvailable ? `${availableCount} slots available` : 'All booked'}
+                      >
+                        <div className="calendar-day-number">{day}</div>
+                        {hasSlots && (
+                          <div className="calendar-day-status">
+                            {isAvailable ? (
+                              <span className="status-dot available"></span>
+                            ) : hasAnySlots ? (
+                              <span className="status-dot booked"></span>
+                            ) : null}
+                          </div>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
 
-                  {selectedDate && (
-                    <div className="time-slots">
-                      {times.length > 0 ? (
-                        <>
-                          {times.map((timeSlot, index) => (
-                            <div key={index} className="time-group">
-                              <h4>{timeSlot.period}</h4>
-                              <div className="time-buttons">
-                                <button
-                                  className={`time-button ${selectedTime === timeSlot.time ? 'selected' : ''} ${timeSlot.isBooked ? 'booked' : ''} ${timeSlot.isPast ? 'past' : ''} ${!timeSlot.isAvailable ? 'unavailable' : ''}`}
-                                  onClick={() => {
-                                    if (timeSlot.isAvailable) {
-                                      setSelectedTime(timeSlot.time);
-                                    }
-                                  }}
-                                  disabled={!timeSlot.isAvailable}
-                                  title={timeSlot.isBooked ? 'This slot is already booked' : timeSlot.isPast ? 'This time has passed' : !timeSlot.isAvailable ? 'Not all hours available in this period' : timeSlot.label}
-                                >
-                                  {timeSlot.label}
-                                  {timeSlot.isBooked && <span className="booked-badge">Booked</span>}
-                                </button>
-                              </div>
-                            </div>
-                          ))}
-                        </>
-                      ) : (
-                        <div className="no-slots">
-                          <p>No time slots available for this date</p>
+              {selectedDate && (
+                <div className="time-slots">
+                  {times.length > 0 ? (
+                    <>
+                      {times.map((timeSlot, index) => (
+                        <div key={index} className="time-group">
+                          <h4>{timeSlot.period}</h4>
+                          <div className="time-buttons">
+                            <button
+                              className={`time-button ${selectedTime === timeSlot.time ? 'selected' : ''} ${timeSlot.isBooked ? 'booked' : ''} ${timeSlot.isPast ? 'past' : ''} ${!timeSlot.isAvailable ? 'unavailable' : ''}`}
+                              onClick={() => {
+                                if (timeSlot.isAvailable) {
+                                  setSelectedTime(timeSlot.time);
+                                }
+                              }}
+                              disabled={!timeSlot.isAvailable}
+                              title={timeSlot.isBooked ? 'This slot is already booked' : timeSlot.isPast ? 'This time has passed' : !timeSlot.isAvailable ? 'Not all hours available in this period' : timeSlot.label}
+                            >
+                              {timeSlot.label}
+                              {timeSlot.isBooked && <span className="booked-badge">Booked</span>}
+                            </button>
+                          </div>
                         </div>
-                      )}
+                      ))}
+                    </>
+                  ) : (
+                    <div className="no-slots">
+                      <p>No time slots available for this date</p>
                     </div>
-                  )}
-                </>
-              ) : (
-                <div className="no-slots">
-                  <p>No available slots</p>
-                  {employee?.availableSlots && employee.availableSlots.length > 0 && (
-                    <p style={{ fontSize: '0.8rem', color: '#999', marginTop: '0.5rem' }}>
-                      Total slots in database: {employee.availableSlots.length}
-                      <br />
-                      Filtered for Online: {employee.availableSlots.filter(s => s.type === 'Online').length}
-                    </p>
                   )}
                 </div>
               )}

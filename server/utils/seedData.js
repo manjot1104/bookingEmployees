@@ -22,7 +22,7 @@ const dummyEmployees = [
     email: 'kumarsunil1002452@gmail.com',
     image: '/therapists/kumarsunil1002452.jpeg',
     video: '/therapists/sunilkumar.mp4',
-    availableSlots: generateSlots('Online', 7)
+    availableSlots: generateSlots('Online', 60)
   },
   {
     name: 'Prithvi Padam',
@@ -45,7 +45,7 @@ const dummyEmployees = [
     email: 'prithvipadam@gmail.com',
     image: '/therapists/prithvipadam.jpeg',
     video: '/therapists/prithivipadam.mp4',
-    availableSlots: generateSlots('Online', 7)
+    availableSlots: generateSlots('Online', 60)
   },
   {
     name: 'Priyanka Leekha',
@@ -68,7 +68,7 @@ const dummyEmployees = [
     email: 'leekha.priyanka@gmail.com',
     image: '/therapists/leekha.priyanka.jpeg',
     video: '/therapists/priyankalekha.mp4',
-    availableSlots: generateSlots('Online', 7)
+    availableSlots: generateSlots('Online', 60)
   },
   {
     name: 'Dr. Vanita Kumari',
@@ -91,7 +91,7 @@ const dummyEmployees = [
     email: 'vanita734722@gmail.com',
     image: '/therapists/vanita734722.jpeg',
     video: '/therapists/vanitakumari.mp4',
-    availableSlots: generateSlots('Online', 7)
+    availableSlots: generateSlots('Online', 60)
   },
   {
     name: 'Ramandeep Kaur',
@@ -114,7 +114,7 @@ const dummyEmployees = [
     email: 'lordslove89@gmail.com',
     image: '/therapists/lordslove89.jpeg',
     video: '/therapists/ramandeepkaur.mp4',
-    availableSlots: generateSlots('Online', 7)
+    availableSlots: generateSlots('Online', 60)
   },
   {
     name: 'Dr. Mitali Sharma',
@@ -137,7 +137,7 @@ const dummyEmployees = [
     email: 'mitalisharma61196@gmail.com',
     image: '/therapists/mitalisharma61196.jpeg',
     video: '/therapists/mitalisharma.mp4',
-    availableSlots: generateSlots('Online', 7)
+    availableSlots: generateSlots('Online', 60)
   },
   {
     name: 'Dr. Ritu',
@@ -160,7 +160,7 @@ const dummyEmployees = [
     email: 'rmudgil7198@gmail.com',
     image: '/therapists/rmudgil7198.jpeg',
     video: '/therapists/ritu.mp4',
-    availableSlots: generateSlots('Online', 7)
+    availableSlots: generateSlots('Online', 60)
   },
   {
     name: 'Dr Priyanka Kalra',
@@ -183,7 +183,7 @@ const dummyEmployees = [
     email: 'priyankakalra@gmail.com',
     image: '/therapists/priyankakalra.jpeg',
     video: '/therapists/priyankakalra.mp4',
-    availableSlots: generateSlots('Online', 7)
+    availableSlots: generateSlots('Online', 60)
   }
 ];
 
@@ -199,19 +199,13 @@ function generateSlots(type, days) {
   let daysGenerated = 0;
   let currentDay = 0;
   
-  // Generate slots for the specified number of working days (excluding Sundays)
+  // Generate slots for the specified number of days (including all days)
   while (daysGenerated < days) {
     const date = new Date();
     date.setDate(date.getDate() + currentDay);
     date.setHours(0, 0, 0, 0);
     
-    // Skip Sundays (day 0)
-    const dayOfWeek = date.getDay();
-    if (dayOfWeek === 0) {
-      currentDay++;
-      continue;
-    }
-    
+    // Include all days including Sundays
     // Generate slots for both Online and In-person
     ['Online', 'In-person'].forEach(slotType => {
       workingTimes.forEach(time => {

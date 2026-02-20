@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getAdminBookings, getAdminEmployees, getAdminUsers, getAdminDashboard, updateSlotStatus } from '../services/api';
+import { getAdminBookings, getAdminEmployees, getAdminUsers, getAdminDashboard, updateSlotStatus, deleteBooking } from '../services/api';
 import './AdminPanel.css';
 
 function AdminPanel({ user, onLogout }) {
@@ -72,10 +72,6 @@ function AdminPanel({ user, onLogout }) {
     <div className="admin-panel">
       <div className="admin-header">
         <h1>Admin Panel</h1>
-        <div className="admin-user-info">
-          <span>Welcome, {user?.name}</span>
-          <button onClick={onLogout} className="admin-logout-btn">Logout</button>
-        </div>
       </div>
 
       <div className="admin-tabs">
@@ -198,6 +194,7 @@ function AdminPanel({ user, onLogout }) {
                         <th>Status</th>
                         <th>Payment</th>
                         <th>Price</th>
+                        <th>Actions</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -234,6 +231,28 @@ function AdminPanel({ user, onLogout }) {
                             </span>
                           </td>
                           <td>{formatCurrency(booking.price?.amount)}</td>
+                          <td>
+                            {booking.paymentStatus === 'Pending' && (
+                              <button
+                                className="delete-booking-btn"
+                                onClick={async () => {
+                                  if (window.confirm('Are you sure you want to delete this booking? This action cannot be undone.')) {
+                                    try {
+                                      await deleteBooking(booking._id);
+                                      // Reload bookings after deletion
+                                      loadData();
+                                    } catch (error) {
+                                      console.error('Error deleting booking:', error);
+                                      alert('Failed to delete booking. Please try again.');
+                                    }
+                                  }
+                                }}
+                                title="Delete booking"
+                              >
+                                Delete
+                              </button>
+                            )}
+                          </td>
                         </tr>
                       ))}
                     </tbody>

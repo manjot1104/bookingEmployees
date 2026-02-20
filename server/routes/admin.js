@@ -289,5 +289,64 @@ router.get('/dashboard', admin, async (req, res) => {
   }
 });
 
+// Delete booking (admin only) - for pending payment bookings
+router.delete('/bookings/:id', admin, async (req, res) => {
+  try {
+    const booking = await Booking.findById(req.params.id);
+    
+    if (!booking) {
+      return res.status(404).json({ message: 'Booking not found' });
+    }
+
+    // Only allow deletion of pending payment bookings
+    if (booking.paymentStatus !== 'Pending') {
+      return res.status(400).json({ 
+        message: 'Only bookings with pending payment can be deleted' 
+      });
+    }
+
+    // If booking has a slot, mark it as available
+    if (booking.employee) {
+      const employee = await Employee.findById(booking.employee);
+      if (employee && employee.availableSlots) {
+        const slotDate = new Date(booking.bookingDate);
+        slotDate.setHours(0, 0, 0, 0);
+        
+        employee.availableSlots.forEach(slot => {
+          const slotDateObj = new Date(slot.date);
+          slotDateObj.setHours(0, 0, 0, 0);
+          
+          if (slotDateObj.getTime() === slotDate.getTime() && 
+              slot.time === booking.bookingTime && 
+              slot.type === booking.type) {
+            slot.isBooked = false;
+          }
+        });
+        
+        employee.markModified('availableSlots');
+        await employee.save();
+      }
+    }
+
+    // Remove booking from user's bookings array
+    if (booking.user) {
+      await User.findByIdAndUpdate(booking.user, {
+        $pull: { bookings: booking._id }
+      });
+    }
+
+    // Delete the booking
+    await Booking.findByIdAndDelete(req.params.id);
+
+    res.json({ 
+      success: true,
+      message: 'Booking deleted successfully' 
+    });
+  } catch (error) {
+    console.error('Delete booking error:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
 module.exports = router;
 
