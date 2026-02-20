@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getEmployee } from '../services/api';
-import { getCurrentISTDate, isDatePast, isToday, isTimePassedToday, formatISTDateString } from '../utils/dateUtils';
+import { isDatePast, isToday, isTimePassedToday, formatISTDateString } from '../utils/dateUtils';
 import './EmployeeProfile.css';
 
 // Working hours constant (10:00 AM to 6:00 PM)
@@ -89,8 +89,6 @@ function EmployeeProfile({ user, isAuthenticated }) {
     );
 
     console.log('Filtered slots for', sessionType, ':', slots.length);
-
-    const todayIST = getCurrentISTDate();
 
     const futureSlots = slots.filter(slot => {
       // Handle both string and Date objects
@@ -230,38 +228,6 @@ function EmployeeProfile({ user, isAuthenticated }) {
     
     console.log('Time slots for', date, ':', timeSlots);
     return timeSlots;
-  };
-
-  const formatDate = (dateString) => {
-    const date = new Date(dateString);
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const tomorrow = new Date(today);
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    
-    date.setHours(0, 0, 0, 0);
-    
-    const days = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
-    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-    
-    if (date.getTime() === today.getTime()) {
-      return { day: days[date.getDay()], label: 'Today', date: date.getDate(), month: months[date.getMonth()] };
-    } else if (date.getTime() === tomorrow.getTime()) {
-      return { day: days[date.getDay()], label: 'Tomorrow', date: date.getDate(), month: months[date.getMonth()] };
-    } else {
-      return { 
-        day: days[date.getDay()], 
-        label: `${days[date.getDay()]} ${date.getDate()}${getOrdinal(date.getDate())} ${months[date.getMonth()]}`, 
-        date: date.getDate(), 
-        month: months[date.getMonth()] 
-      };
-    }
-  };
-
-  const getOrdinal = (n) => {
-    const s = ["th", "st", "nd", "rd"];
-    const v = n % 100;
-    return s[(v - 20) % 10] || s[v] || s[0];
   };
 
   // Calendar grid functions
