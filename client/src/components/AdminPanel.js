@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getAdminBookings, getAdminEmployees, getAdminUsers, getAdminDashboard, updateSlotStatus, deleteBooking } from '../services/api';
+import { formatISTDateString } from '../utils/dateUtils';
 import './AdminPanel.css';
 
 function AdminPanel({ user, onLogout }) {
@@ -12,6 +13,11 @@ function AdminPanel({ user, onLogout }) {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [selectedBookings, setSelectedBookings] = useState([]);
+  const [filterDate, setFilterDate] = useState(null);
+  const [currentMonth, setCurrentMonth] = useState(new Date().getMonth());
+  const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
+  const [calendarExpanded, setCalendarExpanded] = useState(false);
 
   const loadData = async () => {
     setLoading(true);
@@ -47,6 +53,8 @@ function AdminPanel({ user, onLogout }) {
 
   useEffect(() => {
     loadData();
+    // Clear selection when switching tabs
+    setSelectedBookings([]);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeTab]);
 
@@ -66,6 +74,114 @@ function AdminPanel({ user, onLogout }) {
 
   const formatCurrency = (amount) => {
     return `₹${amount || 0}`;
+  };
+
+  // Calendar functions
+  const getCalendarGrid = () => {
+    const firstDay = new Date(currentYear, currentMonth, 1);
+    const lastDay = new Date(currentYear, currentMonth + 1, 0);
+    const daysInMonth = lastDay.getDate();
+    const startingDayOfWeek = firstDay.getDay();
+    
+    const calendarDays = [];
+    
+    // Add empty cells for days before the first day of the month
+    for (let i = 0; i < startingDayOfWeek; i++) {
+      calendarDays.push(null);
+    }
+    
+    // Add all days of the month
+    for (let day = 1; day <= daysInMonth; day++) {
+      const date = new Date(currentYear, currentMonth, day);
+      const dateStr = formatISTDateString(date);
+      calendarDays.push({
+        day,
+        date: dateStr,
+        dateObj: date
+      });
+    }
+    
+    return calendarDays;
+  };
+
+  const getMonthName = () => {
+    const months = ['January', 'February', 'March', 'April', 'May', 'June', 
+                    'July', 'August', 'September', 'October', 'November', 'December'];
+    return months[currentMonth];
+  };
+
+  const changeMonth = (direction) => {
+    if (direction === 'prev') {
+      if (currentMonth === 0) {
+        setCurrentMonth(11);
+        setCurrentYear(currentYear - 1);
+      } else {
+        setCurrentMonth(currentMonth - 1);
+      }
+    } else {
+      if (currentMonth === 11) {
+        setCurrentMonth(0);
+        setCurrentYear(currentYear + 1);
+      } else {
+        setCurrentMonth(currentMonth + 1);
+      }
+    }
+  };
+
+  // Filter bookings by selected date
+  const filteredBookings = filterDate 
+    ? bookings.filter(booking => {
+        const bookingDate = new Date(booking.bookingDate);
+        const bookingDateStr = formatISTDateString(bookingDate);
+        return bookingDateStr === filterDate;
+      })
+    : bookings;
+
+  // Handle checkbox selection
+  const handleSelectBooking = (bookingId) => {
+    setSelectedBookings(prev => {
+      if (prev.includes(bookingId)) {
+        return prev.filter(id => id !== bookingId);
+      } else {
+        return [...prev, bookingId];
+      }
+    });
+  };
+
+  // Handle select all
+  const handleSelectAll = () => {
+    const pendingBookings = filteredBookings.filter(b => b.paymentStatus === 'Pending');
+    if (selectedBookings.length === pendingBookings.length) {
+      setSelectedBookings([]);
+    } else {
+      setSelectedBookings(pendingBookings.map(b => b._id));
+    }
+  };
+
+  // Handle bulk delete
+  const handleBulkDelete = async () => {
+    if (selectedBookings.length === 0) {
+      alert('Please select at least one booking to delete');
+      return;
+    }
+
+    if (!window.confirm(`Are you sure you want to delete ${selectedBookings.length} booking(s)? This action cannot be undone.`)) {
+      return;
+    }
+
+    try {
+      setLoading(true);
+      // Delete all selected bookings
+      await Promise.all(selectedBookings.map(id => deleteBooking(id)));
+      // Clear selection
+      setSelectedBookings([]);
+      // Reload bookings
+      loadData();
+    } catch (error) {
+      console.error('Error deleting bookings:', error);
+      alert('Failed to delete some bookings. Please try again.');
+      setLoading(false);
+    }
   };
 
   return (
@@ -181,11 +297,142 @@ function AdminPanel({ user, onLogout }) {
 
             {activeTab === 'bookings' && (
               <div className="bookings-table-container">
-                <h2>All Bookings ({bookings.length})</h2>
+                <div className="bookings-layout">
+                  {/* Compact Calendar Sidebar */}
+                  <div className={`admin-calendar-sidebar ${calendarExpanded ? 'expanded' : ''}`}>
+                    <button 
+                      className="calendar-toggle-btn"
+                      onClick={() => setCalendarExpanded(!calendarExpanded)}
+                      title={calendarExpanded ? 'Collapse calendar' : 'Expand calendar'}
+                    >
+                      <span className="calendar-icon">📅</span>
+                      <span className="calendar-toggle-text">
+                        {calendarExpanded ? 'Hide' : 'Show'} Calendar
+                      </span>
+                    </button>
+
+                    {calendarExpanded && (
+                      <div className="calendar-expanded-content">
+                        <div className="calendar-header">
+                          <button 
+                            className="month-nav-button" 
+                            onClick={() => changeMonth('prev')}
+                            aria-label="Previous month"
+                          >
+                            ←
+                          </button>
+                          <h3 className="calendar-month-year">
+                            {getMonthName()} {currentYear}
+                          </h3>
+                          <button 
+                            className="month-nav-button" 
+                            onClick={() => changeMonth('next')}
+                            aria-label="Next month"
+                          >
+                            →
+                          </button>
+                        </div>
+
+                        <div className="calendar-weekdays">
+                          <div className="calendar-weekday">S</div>
+                          <div className="calendar-weekday">M</div>
+                          <div className="calendar-weekday">T</div>
+                          <div className="calendar-weekday">W</div>
+                          <div className="calendar-weekday">T</div>
+                          <div className="calendar-weekday">F</div>
+                          <div className="calendar-weekday">S</div>
+                        </div>
+
+                        <div className="calendar-grid">
+                          {getCalendarGrid().map((dayData, index) => {
+                            if (!dayData) {
+                              return <div key={`empty-${index}`} className="calendar-day empty"></div>;
+                            }
+
+                            const { day, date } = dayData;
+                            const isSelected = filterDate === date;
+                            const hasBookings = bookings.some(booking => {
+                              const bookingDate = new Date(booking.bookingDate);
+                              return formatISTDateString(bookingDate) === date;
+                            });
+
+                            return (
+                              <button
+                                key={date}
+                                className={`calendar-day ${isSelected ? 'selected' : ''} ${hasBookings ? 'has-bookings' : ''}`}
+                                onClick={() => {
+                                  if (filterDate === date) {
+                                    setFilterDate(null);
+                                  } else {
+                                    setFilterDate(date);
+                                  }
+                                  setSelectedBookings([]);
+                                }}
+                                title={hasBookings ? `${bookings.filter(b => {
+                                  const bDate = new Date(b.bookingDate);
+                                  return formatISTDateString(bDate) === date;
+                                }).length} booking(s)` : 'No bookings'}
+                              >
+                                <div className="calendar-day-number">{day}</div>
+                                {hasBookings && (
+                                  <div className="calendar-day-status">
+                                    <span className="status-dot bookings"></span>
+                                  </div>
+                                )}
+                              </button>
+                            );
+                          })}
+                        </div>
+                        
+                        {filterDate && (
+                          <div className="filter-info">
+                            <span>{formatDate(new Date(filterDate + 'T00:00:00'))}</span>
+                            <button 
+                              className="clear-filter-btn"
+                              onClick={() => {
+                                setFilterDate(null);
+                                setSelectedBookings([]);
+                              }}
+                            >
+                              Clear
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Bookings Table */}
+                  <div className="bookings-content">
+
+                <div className="bookings-header-actions">
+                  <h2>
+                    All Bookings ({filteredBookings.length}
+                    {filterDate && ` of ${bookings.length}`})
+                  </h2>
+                  {selectedBookings.length > 0 && (
+                    <button
+                      className="bulk-delete-btn"
+                      onClick={handleBulkDelete}
+                      disabled={loading}
+                    >
+                      Delete Selected ({selectedBookings.length})
+                    </button>
+                  )}
+                </div>
                 <div className="table-wrapper">
                   <table className="admin-table">
                     <thead>
                       <tr>
+                        <th>
+                          <input
+                            type="checkbox"
+                            checked={filteredBookings.filter(b => b.paymentStatus === 'Pending').length > 0 && 
+                                    selectedBookings.length === filteredBookings.filter(b => b.paymentStatus === 'Pending').length}
+                            onChange={handleSelectAll}
+                            title="Select all pending bookings"
+                          />
+                        </th>
                         <th>User</th>
                         <th>Therapist</th>
                         <th>Date</th>
@@ -198,8 +445,18 @@ function AdminPanel({ user, onLogout }) {
                       </tr>
                     </thead>
                     <tbody>
-                      {bookings.map((booking) => (
-                        <tr key={booking._id}>
+                      {filteredBookings.map((booking) => (
+                        <tr key={booking._id} className={selectedBookings.includes(booking._id) ? 'selected-row' : ''}>
+                          <td>
+                            {booking.paymentStatus === 'Pending' && (
+                              <input
+                                type="checkbox"
+                                checked={selectedBookings.includes(booking._id)}
+                                onChange={() => handleSelectBooking(booking._id)}
+                                title="Select booking"
+                              />
+                            )}
+                          </td>
                           <td>
                             <div className="user-info">
                               <strong>{booking.user?.name || 'N/A'}</strong>
@@ -239,6 +496,8 @@ function AdminPanel({ user, onLogout }) {
                                   if (window.confirm('Are you sure you want to delete this booking? This action cannot be undone.')) {
                                     try {
                                       await deleteBooking(booking._id);
+                                      // Remove from selection if selected
+                                      setSelectedBookings(prev => prev.filter(id => id !== booking._id));
                                       // Reload bookings after deletion
                                       loadData();
                                     } catch (error) {
@@ -257,6 +516,8 @@ function AdminPanel({ user, onLogout }) {
                       ))}
                     </tbody>
                   </table>
+                </div>
+                  </div>
                 </div>
               </div>
             )}
