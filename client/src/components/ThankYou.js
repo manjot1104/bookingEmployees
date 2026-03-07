@@ -1,25 +1,21 @@
-import React, { useEffect, useState } from 'react';
-import { useLocation, useNavigate, Link } from 'react-router-dom';
+import React, { useEffect, useState, useCallback } from 'react';
+import { useLocation, Link } from 'react-router-dom';
 import { getBooking } from '../services/api';
 import './ThankYou.css';
 
 function ThankYou() {
   const location = useLocation();
-  const navigate = useNavigate();
   const [booking, setBooking] = useState(null);
   const [loading, setLoading] = useState(true);
 
   const bookingId = location.state?.bookingId;
 
-  useEffect(() => {
-    if (bookingId) {
-      loadBooking();
-    } else {
+  const loadBooking = useCallback(async () => {
+    if (!bookingId) {
       setLoading(false);
+      return;
     }
-  }, [bookingId]);
-
-  const loadBooking = async () => {
+    
     try {
       const bookingData = await getBooking(bookingId);
       setBooking(bookingData);
@@ -28,7 +24,11 @@ function ThankYou() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [bookingId]);
+
+  useEffect(() => {
+    loadBooking();
+  }, [loadBooking]);
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
