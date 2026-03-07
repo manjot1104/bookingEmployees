@@ -6,3 +6,16 @@ client/node_modules/
 dist/
 build/
 client/build/
+
+# Large executable files
+*.exe
+client/public/therapists/*.exe
+**/*.exe
+
+# Large files
+*.dmg
+*.pkg
+*.msi
+*.zip
+*.tar.gz
+*.rar

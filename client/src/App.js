@@ -7,6 +7,7 @@ import EmployeeProfile from './components/EmployeeProfile';
 import BookingPage from './components/BookingPage';
 import MyBookings from './components/MyBookings';
 import AdminPanel from './components/AdminPanel';
+import ThankYou from './components/ThankYou';
 import { getAuthToken, setAuthToken, removeAuthToken, getCurrentUser } from './services/api';
 
 function AppContent() {
@@ -122,6 +123,16 @@ function AppContent() {
                     <AdminPanel user={user} onLogout={handleLogout} />
                   ) : (
                     <Navigate to="/" replace />
+                  )
+                } 
+              />
+              <Route 
+                path="/thank-you" 
+                element={
+                  isAuthenticated ? (
+                    <ThankYou />
+                  ) : (
+                    <Navigate to="/login" replace state={{ from: '/thank-you' }} />
                   )
                 } 
               />

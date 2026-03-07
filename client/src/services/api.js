@@ -156,8 +156,14 @@ export const cancelBooking = async (id) => {
 
 // Payment functions (Razorpay)
 export const createRazorpayOrder = async (bookingId, amount) => {
-  const response = await api.post('/payments/create-order', { bookingId, amount });
-  return response.data;
+  try {
+    const response = await api.post('/payments/create-order', { bookingId, amount });
+    return response.data;
+  } catch (error) {
+    console.error('Razorpay order creation error:', error);
+    // Throw error with server message if available
+    throw new Error(error.response?.data?.message || error.response?.data?.error || 'Failed to create payment order');
+  }
 };
 
 export const verifyRazorpayPayment = async (razorpay_order_id, razorpay_payment_id, razorpay_signature, bookingId) => {

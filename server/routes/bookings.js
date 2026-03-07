@@ -57,7 +57,7 @@ router.post('/', auth, [
       type,
       price: {
         amount: finalAmount,
-        currency: employee.price.currency
+        currency: 'INR' // Always use INR code for Razorpay compatibility
       },
       originalAmount: originalAmount,
       discountCode: discountCode,
@@ -67,6 +67,16 @@ router.post('/', auth, [
     });
 
     await booking.save();
+
+    // Log booking details for debugging
+    console.log('✅ Booking created:', {
+      bookingId: booking._id,
+      price: booking.price,
+      priceAmount: booking.price?.amount,
+      originalAmount: booking.originalAmount,
+      discountAmount: booking.discountAmount,
+      discountCode: booking.discountCode
+    });
 
     // Mark slot as booked
     slot.isBooked = true;
@@ -112,9 +122,12 @@ router.post('/', auth, [
       console.error('❌ Error sending booking emails:', emailError);
     }
 
+    // Convert booking to plain object to ensure all fields are serialized correctly
+    const bookingObj = booking.toObject ? booking.toObject() : booking;
+
     res.status(201).json({
       message: 'Booking created successfully',
-      booking
+      booking: bookingObj
     });
   } catch (error) {
     console.error('Create booking error:', error);

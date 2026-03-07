@@ -188,8 +188,8 @@ function BookingPage({ user }) {
               newBookingId
             );
 
-            alert('Payment successful! Booking confirmed.');
-            navigate('/my-bookings');
+            // Redirect to thank you page with booking ID
+            navigate('/thank-you', { state: { bookingId: newBookingId } });
           } catch (error) {
             console.error('Payment verification error:', error);
             alert('Payment verification failed. Please contact support.');

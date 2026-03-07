@@ -200,9 +200,41 @@ function BookingModal({ employee, onClose, onBookingSuccess, isAuthenticated, us
       });
 
       const bookingId = bookingResponse.booking._id;
-      const price = employee.price.amount;
+      
+      // Use the discounted price from booking response (server already applies 20% discount)
+      // The server calculates: finalAmount = originalAmount - (originalAmount * 0.2)
+      const booking = bookingResponse.booking;
+      
+      // Extract price - handle both object and direct number formats
+      let discountedPrice;
+      if (booking.price && typeof booking.price === 'object' && booking.price.amount) {
+        discountedPrice = booking.price.amount;
+      } else if (typeof booking.price === 'number') {
+        discountedPrice = booking.price;
+      }
+      
+      const originalPrice = booking.originalAmount || employee.price.amount;
+      
+      console.log('💰 Booking Price Details:', {
+        bookingId: bookingId,
+        originalPrice: originalPrice,
+        discountedPrice: discountedPrice,
+        discountAmount: booking.discountAmount,
+        discountCode: booking.discountCode,
+        bookingPrice: booking.price,
+        bookingPriceType: typeof booking.price,
+        fullBooking: booking
+      });
+
+      // Use discounted price if available, otherwise calculate it
+      const price = discountedPrice || Math.round(originalPrice * 0.8);
+      
+      if (!price || price <= 0) {
+        throw new Error('Invalid booking price. Please try again.');
+      }
 
       // Step 2: Create Razorpay order
+      // Note: Server will use booking's price from database, but we pass it for reference
       const orderResponse = await createRazorpayOrder(bookingId, price);
 
       // Step 3: Open Razorpay checkout
@@ -223,10 +255,10 @@ function BookingModal({ employee, onClose, onBookingSuccess, isAuthenticated, us
               bookingId
             );
 
-            alert('Payment successful! Booking confirmed.');
+            // Redirect to thank you page with booking ID
             onBookingSuccess();
             onClose();
-            navigate('/my-bookings');
+            navigate('/thank-you', { state: { bookingId } });
           } catch (error) {
             console.error('Payment verification error:', error);
             alert('Payment verification failed. Please contact support.');
@@ -258,8 +290,17 @@ function BookingModal({ employee, onClose, onBookingSuccess, isAuthenticated, us
       setLoading(false);
     } catch (err) {
       console.error('Booking/Payment error:', err);
-      setError(err.response?.data?.message || 'Failed to create booking. Please try again.');
+      // Show more detailed error message
+      const errorMessage = err.message || err.response?.data?.message || err.response?.data?.error || 'Failed to create payment order';
+      setError(errorMessage);
       setLoading(false);
+      
+      // Log full error for debugging
+      console.error('Full error details:', {
+        message: err.message,
+        response: err.response?.data,
+        status: err.response?.status
+      });
     }
   };
 

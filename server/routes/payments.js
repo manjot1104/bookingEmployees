@@ -25,8 +25,8 @@ router.post('/create-order', auth, async (req, res) => {
   try {
     const { bookingId, amount } = req.body;
 
-    if (!bookingId || !amount) {
-      return res.status(400).json({ message: 'Booking ID and amount are required' });
+    if (!bookingId) {
+      return res.status(400).json({ message: 'Booking ID is required' });
     }
 
     // Verify booking exists and belongs to user
@@ -42,22 +42,93 @@ router.post('/create-order', auth, async (req, res) => {
       return res.status(403).json({ message: 'Unauthorized' });
     }
 
+    // Use the booking's price (already includes discount) instead of client-provided amount
+    // This ensures the correct discounted price is always used
+    // Priority: booking.price.amount > booking.originalAmount (with 20% discount) > client amount
+    let finalAmount;
+    
+    // Check if booking has price object with amount
+    if (booking.price && typeof booking.price === 'object' && booking.price.amount) {
+      finalAmount = booking.price.amount;
+    } else if (booking.price && typeof booking.price === 'number') {
+      // Handle case where price might be stored as number directly
+      finalAmount = booking.price;
+    } else if (booking.originalAmount) {
+      // Fallback: Calculate discount from original amount
+      finalAmount = Math.round(booking.originalAmount * 0.8);
+      console.log('⚠️  Using calculated discount from originalAmount:', finalAmount);
+    } else if (amount) {
+      // Last resort: Use client amount with discount
+      finalAmount = Math.round(amount * 0.8);
+      console.log('⚠️  Using calculated discount from client amount:', finalAmount);
+    }
+    
+    // Validate amount
+    if (!finalAmount || finalAmount <= 0 || isNaN(finalAmount)) {
+      console.error('❌ Invalid amount for Razorpay order:', {
+        bookingId: bookingId,
+        priceAmount: booking.price?.amount,
+        originalAmount: booking.originalAmount,
+        clientAmount: amount,
+        finalAmount: finalAmount
+      });
+      return res.status(400).json({ 
+        message: 'Invalid booking amount. Please contact support.',
+        details: {
+          bookingPrice: booking.price?.amount,
+          originalAmount: booking.originalAmount
+        }
+      });
+    }
+    
+    console.log('💰 Creating Razorpay order:', {
+      bookingId: bookingId,
+      originalAmount: booking.originalAmount,
+      discountedAmount: booking.price?.amount,
+      discountCode: booking.discountCode,
+      discountAmount: booking.discountAmount,
+      finalAmount: finalAmount,
+      amountInPaise: finalAmount * 100
+    });
+
     // Create Razorpay order
     // Receipt must be max 40 characters
     const receiptId = `bk_${bookingId.toString().slice(-12)}_${Date.now().toString().slice(-8)}`;
     
     const options = {
-      amount: amount * 100, // Convert to paise (Razorpay expects amount in smallest currency unit)
-      currency: 'INR',
+      amount: finalAmount * 100, // Convert to paise (Razorpay expects amount in smallest currency unit)
+      currency: 'INR', // Razorpay requires currency code, not symbol
       receipt: receiptId.substring(0, 40), // Ensure max 40 characters
       notes: {
         bookingId: bookingId.toString(),
         userId: req.user._id.toString(),
-        employeeId: (booking.employee?._id || booking.employee || '').toString()
+        employeeId: (booking.employee?._id || booking.employee || '').toString(),
+        originalAmount: booking.originalAmount?.toString() || '',
+        discountAmount: booking.discountAmount?.toString() || '',
+        discountCode: booking.discountCode || ''
       }
     };
 
-    const order = await razorpay.orders.create(options);
+    let order;
+    try {
+      order = await razorpay.orders.create(options);
+      console.log('✅ Razorpay order created successfully:', order.id);
+    } catch (razorpayError) {
+      console.error('❌ Razorpay API error:', {
+        error: razorpayError.message,
+        errorDescription: razorpayError.error?.description,
+        errorCode: razorpayError.error?.code,
+        options: {
+          amount: options.amount,
+          currency: options.currency
+        }
+      });
+      return res.status(500).json({ 
+        message: 'Failed to create payment order',
+        error: razorpayError.error?.description || razorpayError.message,
+        details: 'Please check Razorpay configuration and try again.'
+      });
+    }
 
     // Update booking with order ID and ensure employee data is stored
     booking.paymentOrderId = order.id;
@@ -75,8 +146,16 @@ router.post('/create-order', auth, async (req, res) => {
       key: process.env.RAZORPAY_KEY_ID || 'rzp_test_1DP5mmOlF5G5ag'
     });
   } catch (error) {
-    console.error('Razorpay order creation error:', error);
-    res.status(500).json({ message: 'Failed to create payment order', error: error.message });
+    console.error('❌ Payment order creation error:', {
+      error: error.message,
+      stack: error.stack,
+      bookingId: req.body.bookingId
+    });
+    res.status(500).json({ 
+      message: 'Failed to create payment order', 
+      error: error.message,
+      details: 'Please try again or contact support if the issue persists.'
+    });
   }
 });
 
