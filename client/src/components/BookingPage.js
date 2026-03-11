@@ -201,7 +201,7 @@ function BookingPage({ user }) {
           contact: user?.phone || ''
         },
         theme: {
-          color: '#ff6b35'
+          color: '#4A90E2'
         },
         modal: {
           ondismiss: function() {

@@ -36,7 +36,7 @@
 }
 
 .back-button:hover {
-  color: #ff6b35;
+  color: #4A90E2;
 }
 
 .profile-header {
@@ -57,7 +57,7 @@
   height: 150px;
   border-radius: 50%;
   object-fit: cover;
-  border: 3px solid #ff6b35;
+  border: 3px solid #4A90E2;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   max-width: 100%;
 }
@@ -66,7 +66,7 @@
   width: 150px;
   height: 150px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+  background: linear-gradient(135deg, #4A90E2 0%, #6BB3FF 100%);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -156,7 +156,7 @@
 }
 
 .read-more {
-  color: #ff6b35;
+  color: #4A90E2;
   background: none;
   border: none;
   cursor: pointer;
@@ -306,7 +306,7 @@
 .discount-banner strong {
   display: block;
   font-size: 1.5rem;
-  color: #ff6b35;
+  color: #4A90E2;
   margin-bottom: 0.5rem;
 }
 

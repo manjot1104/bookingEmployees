@@ -25,7 +25,7 @@
 }
 
 .back-button:hover {
-  color: #ff6b35;
+  color: #4A90E2;
 }
 
 .discount-box {
@@ -40,7 +40,7 @@
 .discount-box strong {
   display: block;
   font-size: 1.2rem;
-  color: #ff6b35;
+  color: #4A90E2;
   margin-bottom: 0.25rem;
 }
 
@@ -94,7 +94,7 @@
 }
 
 .progress-step.active .step-icon {
-  background: #ff6b35;
+  background: #4A90E2;
   color: white;
 }
 
@@ -117,12 +117,12 @@
 }
 
 .progress-step.active .step-status {
-  color: #ff6b35;
+  color: #4A90E2;
 }
 
 .time-banner {
   background: #fff3e0;
-  color: #ff6b35;
+  color: #4A90E2;
   padding: 1rem;
   border-radius: 8px;
   text-align: center;
@@ -160,7 +160,7 @@
   height: 80px;
   border-radius: 50%;
   object-fit: cover;
-  border: 2px solid #ff6b35;
+  border: 2px solid #4A90E2;
   max-width: 100%;
 }
 
@@ -168,7 +168,7 @@
   width: 80px;
   height: 80px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+  background: linear-gradient(135deg, #4A90E2 0%, #6BB3FF 100%);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -219,8 +219,8 @@
 }
 
 .edit-button:hover {
-  border-color: #ff6b35;
-  color: #ff6b35;
+  border-color: #4A90E2;
+  color: #4A90E2;
 }
 
 .confirmation-text {
@@ -351,7 +351,7 @@
 .payment-button {
   width: 100%;
   padding: 1rem;
-  background-color: #ff6b35;
+  background-color: #4A90E2;
   color: white;
   border: none;
   border-radius: 8px;
@@ -378,7 +378,7 @@
 }
 
 .payment-button:hover:not(:disabled) {
-  background-color: #e55a2b;
+  background-color: #357ABD;
 }
 
 .payment-button:disabled {
@@ -394,7 +394,7 @@
 }
 
 .payment-button:focus:not(:disabled) {
-  outline: 2px solid #ff6b35;
+  outline: 2px solid #4A90E2;
   outline-offset: 2px;
 }
 

@@ -91,7 +91,7 @@ function Login({ onLogin }) {
           <h1>Booking Platform</h1>
           <p>Employee Booking System</p>
           {location.state?.message && (
-            <p style={{ color: '#ff6b35', marginTop: '0.5rem', fontSize: '0.9rem', fontWeight: '500' }}>
+            <p style={{ color: '#4A90E2', marginTop: '0.5rem', fontSize: '0.9rem', fontWeight: '500' }}>
               {location.state.message}
             </p>
           )}

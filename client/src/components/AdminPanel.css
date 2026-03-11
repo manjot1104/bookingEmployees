@@ -69,13 +69,13 @@
 }
 
 .admin-tabs button:hover {
-  color: #ff6b35;
+  color: #4A90E2;
   background-color: #f9f9f9;
 }
 
 .admin-tabs button.active {
-  color: #ff6b35;
-  border-bottom-color: #ff6b35;
+  color: #4A90E2;
+  border-bottom-color: #4A90E2;
   background-color: #fff5f2;
 }
 

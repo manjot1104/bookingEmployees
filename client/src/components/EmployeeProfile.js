@@ -338,7 +338,7 @@ function EmployeeProfile({ user, isAuthenticated }) {
           style={{ 
             marginTop: '1rem', 
             padding: '0.5rem 1rem', 
-            backgroundColor: '#ff6b35', 
+            backgroundColor: '#4A90E2', 
             color: 'white', 
             border: 'none', 
             borderRadius: '6px', 

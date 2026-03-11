@@ -24,7 +24,7 @@
 }
 
 .logo h1 {
-  color: #ff6b35;
+  color: #4A90E2;
   font-size: 1.8rem;
   font-weight: bold;
   margin: 0;
@@ -54,12 +54,12 @@
 }
 
 .main-nav a:hover {
-  color: #ff6b35;
+  color: #4A90E2;
   background-color: #fff5f2;
 }
 
 .main-nav a.active {
-  color: #ff6b35;
+  color: #4A90E2;
   font-weight: 600;
   background-color: #fff5f2;
 }
@@ -72,7 +72,7 @@
   transform: translateX(-50%);
   width: 80%;
   height: 2px;
-  background-color: #ff6b35;
+  background-color: #4A90E2;
   border-radius: 2px;
 }
 
@@ -89,7 +89,7 @@
 
 .logout-btn,
 .login-btn-header {
-  background-color: #ff6b35;
+  background-color: #4A90E2;
   color: white;
   border: none;
   padding: 0.5rem 1rem;
@@ -103,7 +103,7 @@
 
 .logout-btn:hover,
 .login-btn-header:hover {
-  background-color: #e55a2b;
+  background-color: #357ABD;
 }
 
 .main-content {
@@ -147,14 +147,14 @@
 }
 
 .expert-type-selector button:hover {
-  border-color: #ff6b35;
-  color: #ff6b35;
+  border-color: #4A90E2;
+  color: #4A90E2;
 }
 
 .expert-type-selector button.active {
-  background-color: #ff6b35;
+  background-color: #4A90E2;
   color: white;
-  border-color: #ff6b35;
+  border-color: #4A90E2;
 }
 
 .filters-section {
@@ -183,7 +183,7 @@
 
 .filter-select:focus {
   outline: none;
-  border-color: #ff6b35;
+  border-color: #4A90E2;
 }
 
 .employees-section {

@@ -121,7 +121,7 @@
 .booking-form select:focus,
 .booking-form textarea:focus {
   outline: none;
-  border-color: #ff6b35;
+  border-color: #4A90E2;
 }
 
 .date-picker-button {
@@ -137,12 +137,12 @@
 }
 
 .date-picker-button:hover {
-  border-color: #ff6b35;
+  border-color: #4A90E2;
 }
 
 .date-picker-button:focus {
   outline: none;
-  border-color: #ff6b35;
+  border-color: #4A90E2;
 }
 
 .calendar-grid {
@@ -178,15 +178,15 @@
 }
 
 .calendar-date-cell:hover:not(:disabled) {
-  border-color: #ff6b35;
+  border-color: #4A90E2;
   background: #fff5f2;
   transform: translateY(-2px);
-  box-shadow: 0 2px 8px rgba(255, 107, 53, 0.2);
+  box-shadow: 0 2px 8px rgba(74, 144, 226, 0.2);
 }
 
 .calendar-date-cell.selected {
-  background-color: #ff6b35;
-  border-color: #ff6b35;
+  background-color: #4A90E2;
+  border-color: #4A90E2;
   color: white;
 }
 
@@ -209,10 +209,10 @@
 
 .calendar-date-cell.no-slots:hover {
   opacity: 1;
-  border-color: #ff6b35;
+  border-color: #4A90E2;
   background: #fff5f2;
   transform: translateY(-2px);
-  box-shadow: 0 2px 8px rgba(255, 107, 53, 0.2);
+  box-shadow: 0 2px 8px rgba(74, 144, 226, 0.2);
 }
 
 .calendar-date-cell .date-day {
@@ -253,13 +253,13 @@
 }
 
 .booking-type-tabs button:hover {
-  border-color: #ff6b35;
+  border-color: #4A90E2;
 }
 
 .booking-type-tabs button.active {
-  background-color: #ff6b35;
+  background-color: #4A90E2;
   color: white;
-  border-color: #ff6b35;
+  border-color: #4A90E2;
 }
 
 .error-message {
@@ -298,7 +298,7 @@
   flex: 1;
   padding: 0.875rem;
   border: none;
-  background-color: #ff6b35;
+  background-color: #4A90E2;
   color: white;
   border-radius: 6px;
   cursor: pointer;
@@ -307,7 +307,7 @@
 }
 
 .submit-btn:hover:not(:disabled) {
-  background-color: #e55a2b;
+  background-color: #357ABD;
 }
 
 .submit-btn:disabled {
