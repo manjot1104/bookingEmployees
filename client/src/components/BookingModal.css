@@ -10,6 +10,8 @@
   justify-content: center;
   z-index: 1000;
   padding: 2rem;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .modal-content {
@@ -21,6 +23,8 @@
   max-height: 90vh;
   overflow-y: auto;
   position: relative;
+  box-sizing: border-box;
+  -webkit-overflow-scrolling: touch;
 }
 
 .modal-close {
@@ -287,6 +291,10 @@
   cursor: pointer;
   font-weight: 600;
   transition: all 0.3s;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .cancel-btn:hover {
@@ -304,6 +312,10 @@
   cursor: pointer;
   font-weight: 600;
   transition: background-color 0.3s;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .submit-btn:hover:not(:disabled) {
@@ -326,6 +338,9 @@
     max-height: 95vh;
     border-radius: 12px 12px 0 0;
     max-width: 100%;
+    width: 100%;
+    margin: 0;
+    box-sizing: border-box;
   }
 
   .modal-close {
@@ -412,12 +427,17 @@
 
 @media (max-width: 480px) {
   .modal-overlay {
-    padding: 0.5rem;
+    padding: 0;
+    align-items: flex-end;
   }
 
   .modal-content {
     padding: 1.25rem;
     border-radius: 12px 12px 0 0;
+    width: 100%;
+    max-width: 100%;
+    margin: 0;
+    box-sizing: border-box;
   }
 
   .modal-close {

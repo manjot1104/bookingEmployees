@@ -141,15 +141,6 @@ function EmployeeCard({ employee, onBookClick }) {
           </p>
 
           <div className="booking-options">
-            <div className="booking-type-tabs">
-              <button
-                className="active"
-                disabled
-              >
-                Online
-              </button>
-            </div>
-
             <div className="video-option">
               <input type="checkbox" id={`video-${employee._id}`} defaultChecked />
               <label htmlFor={`video-${employee._id}`}>Video</label>
@@ -157,7 +148,7 @@ function EmployeeCard({ employee, onBookClick }) {
 
             {nextSlot && (
               <p className="next-slot">
-                Next online slot: <span className="slot-time">
+                Next available slot: <span className="slot-time">
                   {formatDate(nextSlot.date)}, {nextSlot.time}
                 </span>
               </p>

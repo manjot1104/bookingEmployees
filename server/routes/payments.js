@@ -213,41 +213,44 @@ router.post('/verify-payment', auth, async (req, res) => {
 
     console.log('✅ Payment verified. Booking confirmed for employee:', booking.employee?.name || 'Unknown');
 
-    // Send confirmation emails (non-blocking)
-    try {
-      if (booking.user && booking.employee) {
-        console.log('📧 Sending confirmation emails after payment verification...');
-        console.log('   User:', booking.user.email);
-        console.log('   Admin:', process.env.ADMIN_EMAIL || 'kartikks3367@gmail.com');
-        
-        // Send payment confirmation to user
-        const userEmailResult = await sendBookingConfirmation(booking, booking.user, booking.employee);
-        if (userEmailResult.success) {
-          console.log('✅ User confirmation email sent');
-        } else {
-          console.error('❌ Failed to send user email:', userEmailResult.error);
-        }
-        
-        // Send notification to admin
-        const adminEmailResult = await sendAdminNotification(booking, booking.user, booking.employee);
-        if (adminEmailResult.success) {
-          console.log('✅ Admin notification email sent');
-        } else {
-          console.error('❌ Failed to send admin email:', adminEmailResult.error);
-        }
-      } else {
-        console.warn('⚠️  Cannot send emails - missing user or employee data');
-      }
-    } catch (emailError) {
-      // Log error but don't fail the payment verification
-      console.error('❌ Error sending payment confirmation emails:', emailError);
-      console.error('   Error details:', emailError.stack);
-    }
-
+    // Send response immediately without waiting for emails
     res.json({
       success: true,
       message: 'Payment verified and booking confirmed',
       booking: booking
+    });
+
+    // Send confirmation emails asynchronously (non-blocking, after response is sent)
+    setImmediate(async () => {
+      try {
+        if (booking.user && booking.employee) {
+          console.log('📧 Sending confirmation emails after payment verification...');
+          console.log('   User:', booking.user.email);
+          console.log('   Admin:', process.env.ADMIN_EMAIL || 'kartikks3367@gmail.com');
+          
+          // Send payment confirmation to user
+          const userEmailResult = await sendBookingConfirmation(booking, booking.user, booking.employee);
+          if (userEmailResult.success) {
+            console.log('✅ User confirmation email sent');
+          } else {
+            console.error('❌ Failed to send user email:', userEmailResult.error);
+          }
+          
+          // Send notification to admin
+          const adminEmailResult = await sendAdminNotification(booking, booking.user, booking.employee);
+          if (adminEmailResult.success) {
+            console.log('✅ Admin notification email sent');
+          } else {
+            console.error('❌ Failed to send admin email:', adminEmailResult.error);
+          }
+        } else {
+          console.warn('⚠️  Cannot send emails - missing user or employee data');
+        }
+      } catch (emailError) {
+        // Log error but don't fail the payment verification
+        console.error('❌ Error sending payment confirmation emails:', emailError);
+        console.error('   Error details:', emailError.stack);
+      }
     });
   } catch (error) {
     console.error('Payment verification error:', error);

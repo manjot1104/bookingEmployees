@@ -179,20 +179,35 @@ function BookingPage({ user }) {
         description: `Booking with ${employee.name}`,
         order_id: orderResponse.orderId,
         handler: async function (response) {
-          // Payment successful
+          // Payment successful - redirect immediately, verify in background
           try {
-            await verifyRazorpayPayment(
+            // Redirect immediately to thank you page
+            navigate('/thank-you', { 
+              state: { 
+                bookingId: newBookingId,
+                paymentResponse: response 
+              } 
+            });
+
+            // Verify payment in background (don't wait for it)
+            verifyRazorpayPayment(
               response.razorpay_order_id,
               response.razorpay_payment_id,
               response.razorpay_signature,
               newBookingId
-            );
-
-            // Redirect to thank you page with booking ID
-            navigate('/thank-you', { state: { bookingId: newBookingId } });
+            ).catch(error => {
+              console.error('Payment verification error (background):', error);
+              // Don't show alert as user is already on thank you page
+            });
           } catch (error) {
-            console.error('Payment verification error:', error);
-            alert('Payment verification failed. Please contact support.');
+            console.error('Payment handler error:', error);
+            // Even if there's an error, redirect to thank you page
+            navigate('/thank-you', { 
+              state: { 
+                bookingId: newBookingId,
+                error: 'Payment verification in progress'
+              } 
+            });
           }
         },
         prefill: {

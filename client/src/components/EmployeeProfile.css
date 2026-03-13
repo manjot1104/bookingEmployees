@@ -2,6 +2,9 @@
   min-height: 100vh;
   background-color: #f5f5f5;
   padding: 2rem 0;
+  width: 100%;
+  box-sizing: border-box;
+  overflow-x: hidden;
 }
 
 .profile-container {
@@ -292,6 +295,9 @@
   max-width: 100%;
   box-sizing: border-box;
   overflow: visible;
+  /* Prevent overflow on iPad */
+  min-width: 0;
+  overflow-x: hidden;
 }
 
 .discount-banner {
@@ -351,6 +357,10 @@
   cursor: pointer;
   font-weight: 500;
   transition: all 0.3s;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .session-type-buttons button:hover,
@@ -501,6 +511,8 @@
   overflow: visible;
   grid-auto-rows: minmax(32px, 1fr);
   box-sizing: border-box;
+  /* Prevent grid from overflowing */
+  min-width: 0;
 }
 
 .calendar-day {
@@ -521,7 +533,9 @@
   font-size: 0.7rem;
   box-sizing: border-box;
   min-height: 32px;
+  min-width: 32px;
   overflow: hidden;
+  touch-action: manipulation;
 }
 
 .calendar-day:hover:not(.past):not(.no-slots):not(:disabled) {
@@ -651,6 +665,11 @@
   cursor: pointer;
   text-align: center;
   transition: all 0.3s;
+  min-height: 44px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
 
 .date-button:hover:not(.unavailable) {
@@ -726,6 +745,10 @@
   transition: all 0.3s;
   position: relative;
   min-width: 100px;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .time-button:hover:not(:disabled) {
@@ -806,6 +829,10 @@
   cursor: pointer;
   margin-top: 1.5rem;
   transition: background-color 0.3s;
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .proceed-button:hover:not(:disabled) {
@@ -817,15 +844,96 @@
   cursor: not-allowed;
 }
 
-.profile-loading,
-.profile-error {
-  text-align: center;
-  padding: 4rem 2rem;
-  font-size: 1.2rem;
-  color: #666;
+  .profile-loading,
+  .profile-error {
+    text-align: center;
+    padding: 4rem 2rem;
+    font-size: 1.2rem;
+    color: #666;
+  }
+
+  /* Additional iPad optimizations */
+  .profile-header {
+    gap: 2rem;
+  }
+
+  .employee-photo-large {
+    width: 140px;
+    height: 140px;
+  }
+
+  .image-placeholder-large {
+    width: 140px;
+    height: 140px;
+    font-size: 3.5rem;
+  }
+
+  .profile-info h1 {
+    font-size: 1.8rem;
+  }
+
+  .booking-section {
+    margin-bottom: 2rem;
+    padding-bottom: 2rem;
+  }
+
+  .proceed-button {
+    padding: 1.1rem;
+    font-size: 1.15rem;
+    min-height: 52px;
+  }
+
+/* iPad Pro and larger tablets */
+@media (min-width: 1025px) and (max-width: 1366px) {
+  .profile-container {
+    max-width: 1200px;
+    padding: 0 2rem;
+    grid-template-columns: 2fr 1fr;
+  }
+
+  .calendar-container {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .calendar-day {
+    min-height: 48px;
+    font-size: 0.9rem;
+  }
+
+  .calendar-day-number {
+    font-size: 0.9rem;
+  }
+
+  .time-button {
+    min-width: 140px;
+    padding: 0.7rem 1.4rem;
+    font-size: 0.95rem;
+  }
+
+  .calendar-grid {
+    gap: 0.3rem;
+    grid-auto-rows: minmax(48px, 1fr);
+  }
 }
 
-/* Tablet and below */
+/* iPad landscape specific */
+@media (min-width: 768px) and (max-width: 1024px) and (orientation: landscape) {
+  .profile-container {
+    grid-template-columns: 1.5fr 1fr;
+    gap: 2rem;
+  }
+
+  .calendar-grid {
+    grid-auto-rows: minmax(45px, 1fr);
+  }
+
+  .calendar-day {
+    min-height: 45px;
+  }
+}
+
+/* Tablet and below (iPad) */
 @media (max-width: 1024px) {
   .profile-container {
     grid-template-columns: 1fr;
@@ -839,6 +947,147 @@
 
   .profile-left {
     padding: 1.5rem;
+  }
+
+  /* Calendar improvements for iPad */
+  .calendar-container {
+    margin-bottom: 1.5rem;
+    width: 100%;
+    max-width: 100%;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  .calendar-header {
+    margin-bottom: 1rem;
+    padding: 0.5rem 0;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .calendar-month-year {
+    font-size: 1.2rem;
+    font-weight: 600;
+  }
+
+  .month-nav-button {
+    padding: 0.6rem 0.9rem;
+    font-size: 1.2rem;
+    min-width: 48px;
+    min-height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .calendar-weekdays {
+    gap: 0.3rem;
+    margin-bottom: 0.75rem;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .calendar-weekday {
+    font-size: 0.9rem;
+    padding: 0.6rem 0;
+    font-weight: 600;
+  }
+
+  .calendar-grid {
+    gap: 0.3rem;
+    grid-auto-rows: minmax(50px, 1fr);
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+
+  .calendar-day {
+    min-height: 50px;
+    min-width: 50px;
+    font-size: 0.9rem;
+    padding: 0.3rem;
+    aspect-ratio: 1;
+  }
+
+  .calendar-day-number {
+    font-size: 0.9rem;
+    font-weight: 500;
+  }
+
+  .status-dot {
+    width: 7px;
+    height: 7px;
+    margin-top: 3px;
+  }
+
+  /* Time buttons for iPad */
+  .time-button {
+    min-width: 140px;
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+    min-height: 48px;
+    font-weight: 500;
+  }
+
+  .time-buttons {
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  /* Date buttons for iPad */
+  .date-button {
+    min-width: 140px;
+    padding: 1.5rem 1.25rem;
+    min-height: 48px;
+    font-size: 0.95rem;
+  }
+
+  .date-selector {
+    gap: 1.25rem;
+    padding-bottom: 0.75rem;
+  }
+
+  .date-day {
+    font-size: 1rem;
+  }
+
+  .date-label {
+    font-size: 0.9rem;
+  }
+
+  /* Booking sidebar improvements */
+  .booking-sidebar {
+    padding: 1.75rem;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+
+  .section-header-small h3 {
+    font-size: 1.1rem;
+  }
+
+  .session-type-buttons,
+  .duration-buttons {
+    gap: 0.75rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .session-type-buttons button,
+  .duration-buttons button {
+    padding: 0.9rem;
+    font-size: 1.05rem;
+    min-height: 48px;
+    font-weight: 500;
+  }
+
+  .time-slots h4 {
+    font-size: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  .time-group {
+    margin-bottom: 1.75rem;
   }
 }
 
@@ -1072,6 +1321,16 @@
     font-size: 0.85rem;
     flex: 1;
     min-width: calc(50% - 0.2rem);
+    min-height: 44px;
+  }
+
+  .calendar-day {
+    min-height: 35px;
+    font-size: 0.7rem;
+  }
+
+  .calendar-day-number {
+    font-size: 0.7rem;
   }
 
   .proceed-button {

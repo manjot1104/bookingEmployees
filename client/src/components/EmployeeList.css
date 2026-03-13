@@ -4,6 +4,8 @@
   gap: 2rem;
   margin-top: 2rem;
   align-items: stretch;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 @media (max-width: 1024px) {
@@ -25,11 +27,14 @@
     grid-template-columns: 1fr;
     gap: 1.5rem;
     margin-top: 1.5rem;
+    width: 100%;
+    padding: 0;
   }
 
   .no-employees {
     padding: 2rem 1rem;
     font-size: 1rem;
+    word-break: break-word;
   }
 }
 
@@ -37,11 +42,14 @@
   .employee-list {
     gap: 1rem;
     margin-top: 1rem;
+    width: 100%;
+    padding: 0;
   }
 
   .no-employees {
     padding: 1.5rem 0.75rem;
     font-size: 0.95rem;
+    word-break: break-word;
   }
 }
 

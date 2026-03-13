@@ -6,29 +6,41 @@ import './ThankYou.css';
 function ThankYou() {
   const location = useLocation();
   const [booking, setBooking] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false); // Start with false to show page immediately
 
   const bookingId = location.state?.bookingId;
+  const paymentResponse = location.state?.paymentResponse;
 
-  const loadBooking = useCallback(async () => {
+  const loadBooking = useCallback(async (currentRetry = 0) => {
     if (!bookingId) {
       setLoading(false);
       return;
     }
     
+    setLoading(true);
     try {
       const bookingData = await getBooking(bookingId);
       setBooking(bookingData);
+      setLoading(false);
     } catch (error) {
       console.error('Error loading booking:', error);
-    } finally {
-      setLoading(false);
+      // Retry up to 3 times with increasing delay
+      if (currentRetry < 3) {
+        setTimeout(() => {
+          loadBooking(currentRetry + 1);
+        }, 1000 * (currentRetry + 1)); // 1s, 2s, 3s delays
+      } else {
+        setLoading(false);
+      }
     }
   }, [bookingId]);
 
   useEffect(() => {
-    loadBooking();
-  }, [loadBooking]);
+    // Load booking immediately if we have bookingId
+    if (bookingId) {
+      loadBooking(0);
+    }
+  }, [bookingId, loadBooking]);
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
@@ -44,15 +56,8 @@ function ThankYou() {
     return timeString;
   };
 
-  if (loading) {
-    return (
-      <div className="thank-you-container">
-        <div className="thank-you-content">
-          <div className="loading-spinner">Loading...</div>
-        </div>
-      </div>
-    );
-  }
+  // Show page immediately, even if booking is still loading
+  // This makes the thank you page appear instantly after payment
 
   return (
     <div className="thank-you-container">
@@ -66,6 +71,12 @@ function ThankYou() {
 
         <h1 className="thank-you-title">Thank You!</h1>
         <p className="thank-you-subtitle">Your booking has been confirmed</p>
+
+        {loading && !booking && (
+          <div className="loading-spinner" style={{ margin: '2rem 0', textAlign: 'center' }}>
+            Loading booking details...
+          </div>
+        )}
 
         {booking && (
           <div className="booking-details-card">
