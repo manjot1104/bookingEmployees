@@ -9,7 +9,6 @@ function ThankYou() {
   const [loading, setLoading] = useState(false); // Start with false to show page immediately
 
   const bookingId = location.state?.bookingId;
-  const paymentResponse = location.state?.paymentResponse;
 
   const loadBooking = useCallback(async (currentRetry = 0) => {
     if (!bookingId) {
