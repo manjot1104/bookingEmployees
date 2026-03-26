@@ -6,6 +6,7 @@ const Employee = require('../models/Employee');
 const User = require('../models/User');
 const auth = require('../middleware/auth');
 const { sendBookingConfirmation, sendAdminNotification } = require('../utils/emailService');
+const { sendBookingConfirmationWhatsApp, sendAdminWhatsAppNotification } = require('../utils/whatsappService');
 const router = express.Router();
 
 // Initialize Razorpay
@@ -243,12 +244,29 @@ router.post('/verify-payment', auth, async (req, res) => {
           } else {
             console.error('❌ Failed to send admin email:', adminEmailResult.error);
           }
+
+          // Send WhatsApp confirmation to user
+          console.log('📱 Sending WhatsApp booking confirmation...');
+          const whatsappResult = await sendBookingConfirmationWhatsApp(booking, booking.user, booking.employee);
+          if (whatsappResult.success) {
+            console.log('✅ WhatsApp booking confirmation sent to user');
+          } else {
+            console.error('❌ Failed to send WhatsApp to user:', whatsappResult.error);
+          }
+
+          // Send WhatsApp notification to admin
+          const adminWhatsappResult = await sendAdminWhatsAppNotification(booking, booking.user, booking.employee);
+          if (adminWhatsappResult.success) {
+            console.log('✅ WhatsApp admin notification sent');
+          } else {
+            console.error('❌ Failed to send WhatsApp to admin:', adminWhatsappResult.error);
+          }
         } else {
-          console.warn('⚠️  Cannot send emails - missing user or employee data');
+          console.warn('⚠️  Cannot send emails/WhatsApp - missing user or employee data');
         }
       } catch (emailError) {
         // Log error but don't fail the payment verification
-        console.error('❌ Error sending payment confirmation emails:', emailError);
+        console.error('❌ Error sending payment confirmation emails/WhatsApp:', emailError);
         console.error('   Error details:', emailError.stack);
       }
     });

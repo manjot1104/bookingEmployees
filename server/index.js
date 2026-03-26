@@ -4,6 +4,7 @@ const cors = require('cors');
 const compression = require('compression');
 const dotenv = require('dotenv');
 const { createTransporter } = require('./utils/emailService');
+const { getWhatsAppConfig } = require('./utils/whatsappService');
 
 dotenv.config();
 
@@ -135,5 +136,17 @@ app.listen(PORT, () => {
   } else {
     console.warn('⚠️  Email service not configured. Emails will not be sent.');
     console.warn('   Add SMTP settings to .env file to enable email notifications.');
+  }
+
+  // Check WhatsApp service configuration
+  console.log('\n📱 Checking WhatsApp service configuration...');
+  const whatsappConfig = getWhatsAppConfig();
+  if (whatsappConfig) {
+    console.log('✅ WhatsApp service configured successfully');
+    console.log(`   Phone Number ID: ${whatsappConfig.phoneNumberId}`);
+    console.log(`   Template: ${whatsappConfig.templateName}`);
+  } else {
+    console.warn('⚠️  WhatsApp service not configured. WhatsApp notifications will not be sent.');
+    console.warn('   Add WHATSAPP_PHONE_NUMBER_ID and WHATSAPP_ACCESS_TOKEN to .env file.');
   }
 });
