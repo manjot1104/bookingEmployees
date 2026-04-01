@@ -23,11 +23,11 @@ function ThankYou() {
       setLoading(false);
     } catch (error) {
       console.error('Error loading booking:', error);
-      // Retry up to 3 times with increasing delay
-      if (currentRetry < 3) {
+      // Retry multiple times; webhook confirmation can take a few seconds
+      if (currentRetry < 8) {
         setTimeout(() => {
           loadBooking(currentRetry + 1);
-        }, 1000 * (currentRetry + 1)); // 1s, 2s, 3s delays
+        }, Math.min(1000 * (currentRetry + 1), 5000));
       } else {
         setLoading(false);
       }
@@ -69,7 +69,11 @@ function ThankYou() {
         </div>
 
         <h1 className="thank-you-title">Thank You!</h1>
-        <p className="thank-you-subtitle">Your booking has been confirmed</p>
+        <p className="thank-you-subtitle">
+          {booking?.paymentStatus === 'Paid'
+            ? 'Your booking has been confirmed'
+            : 'Your payment is being verified'}
+        </p>
 
         {loading && !booking && (
           <div className="loading-spinner" style={{ margin: '2rem 0', textAlign: 'center' }}>

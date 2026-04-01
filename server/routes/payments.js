@@ -9,6 +9,74 @@ const { sendBookingConfirmation, sendAdminNotification } = require('../utils/ema
 const { sendBookingConfirmationWhatsApp, sendAdminWhatsAppNotification } = require('../utils/whatsappService');
 const router = express.Router();
 
+const updateBookingAsPaid = async ({
+  booking,
+  razorpay_order_id,
+  razorpay_payment_id,
+  razorpay_signature,
+  source = 'verify-payment'
+}) => {
+  // Idempotency: if already paid, avoid duplicate writes/emails
+  if (booking.paymentStatus === 'Paid' && booking.status === 'Confirmed') {
+    return { alreadyPaid: true, booking };
+  }
+
+  booking.paymentOrderId = razorpay_order_id || booking.paymentOrderId;
+  booking.paymentId = razorpay_payment_id || booking.paymentId;
+  if (razorpay_signature) {
+    booking.paymentSignature = razorpay_signature;
+  }
+  booking.status = 'Confirmed';
+  booking.paymentStatus = 'Paid';
+  booking.paidAt = booking.paidAt || new Date();
+
+  // Ensure denormalized employee data is stored
+  if (booking.employee && !booking.employeeName) {
+    booking.employeeName = booking.employee.name;
+    booking.employeeTitle = booking.employee.title;
+  }
+
+  await booking.save();
+
+  // Populate data required for notifications
+  await booking.populate('employee', 'name title experience price expertise languages image bio qualifications email');
+  await booking.populate('user', 'name email phone');
+
+  // Send confirmation notifications asynchronously
+  setImmediate(async () => {
+    try {
+      if (!booking.user || !booking.employee) {
+        console.warn(`⚠️  ${source}: Missing user/employee, skipping notifications`);
+        return;
+      }
+
+      const userEmailResult = await sendBookingConfirmation(booking, booking.user, booking.employee);
+      if (!userEmailResult.success) {
+        console.error(`❌ ${source}: user email failed:`, userEmailResult.error);
+      }
+
+      const adminEmailResult = await sendAdminNotification(booking, booking.user, booking.employee);
+      if (!adminEmailResult.success) {
+        console.error(`❌ ${source}: admin email failed:`, adminEmailResult.error);
+      }
+
+      const whatsappResult = await sendBookingConfirmationWhatsApp(booking, booking.user, booking.employee);
+      if (!whatsappResult.success) {
+        console.error(`❌ ${source}: user WhatsApp failed:`, whatsappResult.error);
+      }
+
+      const adminWhatsappResult = await sendAdminWhatsAppNotification(booking, booking.user, booking.employee);
+      if (!adminWhatsappResult.success) {
+        console.error(`❌ ${source}: admin WhatsApp failed:`, adminWhatsappResult.error);
+      }
+    } catch (notificationError) {
+      console.error(`❌ ${source}: error sending notifications`, notificationError);
+    }
+  });
+
+  return { alreadyPaid: false, booking };
+};
+
 // Initialize Razorpay
 if (!process.env.RAZORPAY_KEY_ID || !process.env.RAZORPAY_KEY_SECRET) {
   console.warn('⚠️  Razorpay keys not configured. Payment will not work. Please add RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET to .env file');
@@ -192,87 +260,94 @@ router.post('/verify-payment', auth, async (req, res) => {
       return res.status(400).json({ message: 'Payment verification failed' });
     }
 
-    // Update booking with payment details
-    booking.paymentOrderId = razorpay_order_id;
-    booking.paymentId = razorpay_payment_id;
-    booking.paymentSignature = razorpay_signature;
-    booking.status = 'Confirmed';
-    booking.paymentStatus = 'Paid';
-    booking.paidAt = new Date();
-    
-    // Ensure denormalized employee data is stored (for performance and reliability)
-    if (booking.employee && !booking.employeeName) {
-      booking.employeeName = booking.employee.name;
-      booking.employeeTitle = booking.employee.title;
-    }
-    
-    await booking.save();
-
-    // Populate employee and user before sending response
-    await booking.populate('employee', 'name title experience price expertise languages image bio qualifications email');
-    await booking.populate('user', 'name email phone');
-
-    console.log('✅ Payment verified. Booking confirmed for employee:', booking.employee?.name || 'Unknown');
-
-    // Send response immediately without waiting for emails
-    res.json({
-      success: true,
-      message: 'Payment verified and booking confirmed',
-      booking: booking
+    const { alreadyPaid, booking: updatedBooking } = await updateBookingAsPaid({
+      booking,
+      razorpay_order_id,
+      razorpay_payment_id,
+      razorpay_signature,
+      source: 'verify-payment'
     });
 
-    // Send confirmation emails asynchronously (non-blocking, after response is sent)
-    setImmediate(async () => {
-      try {
-        if (booking.user && booking.employee) {
-          console.log('📧 Sending confirmation emails after payment verification...');
-          console.log('   User:', booking.user.email);
-          console.log('   Admin:', process.env.ADMIN_EMAIL || 'kartikks3367@gmail.com');
-          
-          // Send payment confirmation to user
-          const userEmailResult = await sendBookingConfirmation(booking, booking.user, booking.employee);
-          if (userEmailResult.success) {
-            console.log('✅ User confirmation email sent');
-          } else {
-            console.error('❌ Failed to send user email:', userEmailResult.error);
-          }
-          
-          // Send notification to admin
-          const adminEmailResult = await sendAdminNotification(booking, booking.user, booking.employee);
-          if (adminEmailResult.success) {
-            console.log('✅ Admin notification email sent');
-          } else {
-            console.error('❌ Failed to send admin email:', adminEmailResult.error);
-          }
+    console.log(
+      alreadyPaid
+        ? 'ℹ️ Payment already marked as paid, returning current booking'
+        : `✅ Payment verified. Booking confirmed for employee: ${updatedBooking.employee?.name || 'Unknown'}`
+    );
 
-          // Send WhatsApp confirmation to user
-          console.log('📱 Sending WhatsApp booking confirmation...');
-          const whatsappResult = await sendBookingConfirmationWhatsApp(booking, booking.user, booking.employee);
-          if (whatsappResult.success) {
-            console.log('✅ WhatsApp booking confirmation sent to user');
-          } else {
-            console.error('❌ Failed to send WhatsApp to user:', whatsappResult.error);
-          }
-
-          // Send WhatsApp notification to admin
-          const adminWhatsappResult = await sendAdminWhatsAppNotification(booking, booking.user, booking.employee);
-          if (adminWhatsappResult.success) {
-            console.log('✅ WhatsApp admin notification sent');
-          } else {
-            console.error('❌ Failed to send WhatsApp to admin:', adminWhatsappResult.error);
-          }
-        } else {
-          console.warn('⚠️  Cannot send emails/WhatsApp - missing user or employee data');
-        }
-      } catch (emailError) {
-        // Log error but don't fail the payment verification
-        console.error('❌ Error sending payment confirmation emails/WhatsApp:', emailError);
-        console.error('   Error details:', emailError.stack);
-      }
+    res.json({
+      success: true,
+      message: alreadyPaid ? 'Payment already verified' : 'Payment verified and booking confirmed',
+      booking: updatedBooking
     });
   } catch (error) {
     console.error('Payment verification error:', error);
     res.status(500).json({ message: 'Payment verification failed', error: error.message });
+  }
+});
+
+// Razorpay webhook fallback to confirm payments even if client verification fails
+router.post('/webhook', async (req, res) => {
+  try {
+    const webhookSecret = process.env.RAZORPAY_WEBHOOK_SECRET;
+    const signature = req.headers['x-razorpay-signature'];
+
+    if (!webhookSecret) {
+      return res.status(500).json({ message: 'Webhook secret is not configured' });
+    }
+
+    if (!signature) {
+      return res.status(400).json({ message: 'Missing webhook signature' });
+    }
+
+    const rawBody = req.rawBody;
+    if (!rawBody) {
+      return res.status(400).json({ message: 'Missing raw request body for signature verification' });
+    }
+
+    const expectedSignature = crypto
+      .createHmac('sha256', webhookSecret)
+      .update(rawBody)
+      .digest('hex');
+
+    if (expectedSignature !== signature) {
+      return res.status(400).json({ message: 'Invalid webhook signature' });
+    }
+
+    const payload = req.body;
+    const event = payload?.event;
+
+    // Handle only successful payment events
+    if (event !== 'payment.captured' && event !== 'order.paid') {
+      return res.json({ received: true, ignored: event || 'unknown_event' });
+    }
+
+    const paymentEntity = payload?.payload?.payment?.entity;
+    const orderEntity = payload?.payload?.order?.entity;
+    const paymentOrderId = paymentEntity?.order_id || orderEntity?.id;
+    const paymentId = paymentEntity?.id;
+
+    if (!paymentOrderId) {
+      return res.status(400).json({ message: 'Missing order id in webhook payload' });
+    }
+
+    const booking = await Booking.findOne({ paymentOrderId: paymentOrderId }).populate('employee', 'name title');
+    if (!booking) {
+      console.warn('⚠️ Webhook booking not found for order:', paymentOrderId);
+      return res.json({ received: true, bookingUpdated: false });
+    }
+
+    await updateBookingAsPaid({
+      booking,
+      razorpay_order_id: paymentOrderId,
+      razorpay_payment_id: paymentId,
+      razorpay_signature: signature,
+      source: 'webhook'
+    });
+
+    return res.json({ received: true, bookingUpdated: true });
+  } catch (error) {
+    console.error('❌ Razorpay webhook error:', error);
+    return res.status(500).json({ message: 'Webhook processing failed', error: error.message });
   }
 });
 

@@ -179,34 +179,29 @@ function BookingPage({ user }) {
         description: `Booking with ${employee.name}`,
         order_id: orderResponse.orderId,
         handler: async function (response) {
-          // Payment successful - redirect immediately, verify in background
+          // Payment successful - verify first so booking/email status is consistent
           try {
-            // Redirect immediately to thank you page
-            navigate('/thank-you', { 
-              state: { 
-                bookingId: newBookingId,
-                paymentResponse: response 
-              } 
-            });
-
-            // Verify payment in background (don't wait for it)
-            verifyRazorpayPayment(
+            await verifyRazorpayPayment(
               response.razorpay_order_id,
               response.razorpay_payment_id,
               response.razorpay_signature,
               newBookingId
-            ).catch(error => {
-              console.error('Payment verification error (background):', error);
-              // Don't show alert as user is already on thank you page
+            );
+
+            navigate('/thank-you', {
+              state: {
+                bookingId: newBookingId,
+                paymentResponse: response
+              }
             });
           } catch (error) {
             console.error('Payment handler error:', error);
-            // Even if there's an error, redirect to thank you page
-            navigate('/thank-you', { 
-              state: { 
+            // Fallback: webhook can still mark payment captured
+            navigate('/thank-you', {
+              state: {
                 bookingId: newBookingId,
-                error: 'Payment verification in progress'
-              } 
+                error: 'Payment received. Verification is in progress.'
+              }
             });
           }
         },
